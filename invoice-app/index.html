@@ -95,6 +95,8 @@
     .status-bezahlt { background: var(--success-light) !important; color: #065f46; }
     .status-überfällig { background: var(--danger-light) !important; color: #991b1b; }
     .status-storniert { background: #f3f4f6 !important; color: var(--text-muted); }
+    .status-angenommen { background: var(--success-light) !important; color: #065f46; }
+    .status-abgelehnt { background: var(--danger-light) !important; color: #991b1b; }
 
     /* ── Template Selector ── */
     .template-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 6px; }
@@ -317,6 +319,29 @@
       /* Action buttons in card rows */
       .actions-cell { gap: 6px; }
       .actions-cell .btn-icon { width: 34px; height: 34px; border-radius: 8px; background: #f2f2f7; color: #3c3c43; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+      #belege-submenu {
+        position: fixed; bottom: 66px; left: 0; right: 0;
+        display: flex; justify-content: center; gap: 20px;
+        padding: 14px 24px 12px;
+        background: rgba(250,250,252,.97);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border-top: 1px solid rgba(0,0,0,.1);
+        z-index: 199; animation: belegeSlide .18s ease;
+        padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+      }
+      #belege-submenu.hidden { display: none !important; }
+      .bsub-btn {
+        display: flex; flex-direction: column; align-items: center; gap: 5px;
+        color: #007aff; font-size: 12px; font-weight: 600; cursor: pointer;
+        background: #f0f8ff; border: none; border-radius: 14px;
+        padding: 12px 22px; min-width: 110px;
+        box-shadow: 0 2px 12px rgba(0,122,255,.18);
+        -webkit-tap-highlight-color: transparent; transition: transform .1s;
+      }
+      .bsub-btn:active { transform: scale(.92); }
+      @keyframes belegeSlide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     }
 
     /* ── PRINT ── */
@@ -361,8 +386,12 @@
     </div>
     <div class="nav-section">Verwaltung</div>
     <div class="nav-item" data-page="invoices">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Rechnungen
+    </div>
+    <div class="nav-item" data-page="quotes">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>
+      Angebote
     </div>
     <div class="nav-item" data-page="customers">
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -440,6 +469,20 @@
       </div>
     </div>
 
+    <!-- QUOTES -->
+    <div class="page" id="page-quotes">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Alle Angebote</span>
+          <div class="search-bar">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Suchen…" oninput="filterQuotes(this.value)" />
+          </div>
+        </div>
+        <div id="quotes-table-wrap"></div>
+      </div>
+    </div>
+
     <!-- CUSTOMERS -->
     <div class="page" id="page-customers">
       <div class="card">
@@ -495,6 +538,7 @@
             <div class="form-group full"><label>Fußzeile / Bankdaten (Rechnungstext)</label><textarea id="s-footer" rows="3" placeholder="Zahlbar innerhalb von 14 Tagen ohne Abzug."></textarea></div>
             <div class="form-group"><label>Standard MwSt. (%)</label><input id="s-vat-rate" type="number" value="0" /></div>
             <div class="form-group"><label>Nächste Rechnungsnr.</label><input id="s-invoice-start" type="number" value="1001" /></div>
+            <div class="form-group"><label>Nächste Angebotsnr.</label><input id="s-quote-start" type="number" value="1" /></div>
           </div>
           <div class="form-group full" style="margin-top:8px;">
             <label>Rechnungsvorlage</label>
@@ -679,11 +723,11 @@
 
       <!-- Meta -->
       <div class="invoice-section">
-        <h3>Rechnungsdetails</h3>
+        <h3 id="inv-section-title">Rechnungsdetails</h3>
         <div class="form-grid">
-          <div class="form-group"><label>Rechnungsnummer</label><input id="inv-number" readonly style="background:#f9fafb;" /></div>
+          <div class="form-group"><label id="inv-number-label">Rechnungsnummer</label><input id="inv-number" readonly style="background:#f9fafb;" /></div>
           <div class="form-group"><label>Datum</label><input id="inv-date" type="date" /></div>
-          <div class="form-group"><label>Fälligkeitsdatum</label><input id="inv-due" type="date" /></div>
+          <div class="form-group"><label id="inv-due-label">Fälligkeitsdatum</label><input id="inv-due" type="date" /></div>
           <div class="form-group"><label>Status</label>
             <select id="inv-status">
               <option value="offen">Offen</option>
@@ -743,7 +787,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-invoice')">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveInvoice()">Rechnung speichern</button>
+      <button class="btn btn-primary" id="inv-save-btn" onclick="saveDocument()">Rechnung speichern</button>
     </div>
   </div>
 </div>
@@ -880,7 +924,7 @@
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
     Start
   </button>
-  <button class="mn-item" data-page="invoices">
+  <button class="mn-item" id="mn-belege" onclick="toggleBelegeMenu(event)">
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
     Belege
   </button>
@@ -897,6 +941,19 @@
     Einst.
   </button>
 </nav>
+
+<!-- Belege submenu -->
+<div id="belege-submenu" class="hidden">
+  <button class="bsub-btn" onclick="navigateBelege('invoices')">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    Rechnungen
+  </button>
+  <button class="bsub-btn" onclick="navigateBelege('quotes')">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>
+    Angebote
+  </button>
+</div>
+<div id="belege-backdrop" style="display:none;position:fixed;inset:0;z-index:198" onclick="closeBelegeMenu()"></div>
 
 <!-- Toast Container -->
 <div id="toast-container"></div>
@@ -995,6 +1052,7 @@ async function pushAllToCloud() {
   if (!db || !currentUser) return;
   await cloudSet('customers', getCustomers());
   await cloudSet('invoices', getInvoices());
+  await cloudSet('quotes', getQuotes());
   await cloudSet('positions', getPositions());
   await cloudSet('settings', getSettings());
   toast('Alle Daten in die Cloud synchronisiert.', 'success');
@@ -1002,14 +1060,15 @@ async function pushAllToCloud() {
 
 async function pullFromCloud() {
   if (!db || !currentUser) return false;
-  const [c, i, p, s] = await Promise.all([
-    cloudGet('customers'), cloudGet('invoices'), cloudGet('positions'), cloudGet('settings')
+  const [c, i, q, p, s] = await Promise.all([
+    cloudGet('customers'), cloudGet('invoices'), cloudGet('quotes'), cloudGet('positions'), cloudGet('settings')
   ]);
   if (c) setCustomers(c);
   if (i) setInvoices(i);
+  if (q) setQuotes(q);
   if (p) setPositions(p);
   if (s) setSettings(s);
-  return !!(c || i || p || s);
+  return !!(c || i || q || p || s);
 }
 
 // ═══════════════════════════════════════════════════
@@ -1288,16 +1347,19 @@ function getPositions() { return DB.get('positions'); }
 function setPositions(d) { DB.set('positions', d); }
 function getInvoices() { return DB.get('invoices'); }
 function setInvoices(d) { DB.set('invoices', d); }
-function getSettings() { return DB.getObj('settings', { company:'', address:'', zip:'', city:'', phone:'', email:'', vat:'', iban:'', footer:'Zahlbar innerhalb von 14 Tagen ohne Abzug.', vatRate:0, invoiceStart:1001, nextInvoiceNum:1001, template:'klassisch' }); }
+function getSettings() { return DB.getObj('settings', { company:'', address:'', zip:'', city:'', phone:'', email:'', vat:'', iban:'', footer:'Zahlbar innerhalb von 14 Tagen ohne Abzug.', vatRate:0, invoiceStart:1001, nextInvoiceNum:1001, nextQuoteNum:1, template:'klassisch' }); }
 function setSettings(d) { DB.set('settings', d); }
+function getQuotes() { return DB.get('quotes'); }
+function setQuotes(d) { DB.set('quotes', d); }
 
 // ═══════════════════════════════════════════════════
 //  NAVIGATION
 // ═══════════════════════════════════════════════════
 
-const pageTitles = { dashboard:'Dashboard', invoices:'Rechnungen', customers:'Kunden', positions:'Arbeitspositionen', settings:'Meine Daten' };
+const pageTitles = { dashboard:'Dashboard', invoices:'Rechnungen', quotes:'Angebote', customers:'Kunden', positions:'Arbeitspositionen', settings:'Meine Daten' };
 const topbarButtons = {
   invoices: () => `<button class="btn btn-primary" onclick="openNewInvoice()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neue Rechnung</button>`,
+  quotes: () => `<button class="btn btn-primary" onclick="openNewQuote()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neues Angebot</button>`,
   customers: () => `<button class="btn btn-primary" onclick="openNewCustomer()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neuer Kunde</button>`,
   positions: () => `<button class="btn btn-primary" onclick="openNewPosition()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neue Position</button>`,
 };
@@ -1306,10 +1368,16 @@ function navigate(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+  const sidebarItem = document.querySelector(`.nav-item[data-page="${page}"]`);
+  if (sidebarItem) sidebarItem.classList.add('active');
   document.querySelectorAll('#mobile-nav .mn-item').forEach(n => n.classList.remove('active'));
-  const mnActive = document.querySelector(`#mobile-nav .mn-item[data-page="${page}"]`);
-  if (mnActive) mnActive.classList.add('active');
+  if (page === 'invoices' || page === 'quotes') {
+    const bBtn = document.getElementById('mn-belege');
+    if (bBtn) bBtn.classList.add('active');
+  } else {
+    const mnActive = document.querySelector(`#mobile-nav .mn-item[data-page="${page}"]`);
+    if (mnActive) mnActive.classList.add('active');
+  }
   document.getElementById('page-title').textContent = pageTitles[page] || page;
   document.getElementById('topbar-actions').innerHTML = (topbarButtons[page] ? topbarButtons[page]() : '');
   renderPage(page);
@@ -1318,13 +1386,14 @@ function navigate(page) {
 document.querySelectorAll('.nav-item').forEach(el => {
   el.addEventListener('click', () => navigate(el.dataset.page));
 });
-document.querySelectorAll('#mobile-nav .mn-item').forEach(el => {
+document.querySelectorAll('#mobile-nav .mn-item:not(#mn-belege)').forEach(el => {
   el.addEventListener('click', () => navigate(el.dataset.page));
 });
 
 function renderPage(page) {
   if (page === 'dashboard') renderDashboard();
   if (page === 'invoices') renderInvoices();
+  if (page === 'quotes') renderQuotes();
   if (page === 'customers') renderCustomers();
   if (page === 'positions') renderPositions();
   if (page === 'settings') loadSettings();
@@ -1365,17 +1434,19 @@ function confirm(text, onOk) {
 
 function renderDashboard() {
   const invoices = getInvoices();
+  const quotes = getQuotes();
   const customers = getCustomers();
   const total = invoices.reduce((s, i) => s + (i.total || 0), 0);
   const open = invoices.filter(i => i.status === 'offen');
   const openAmt = open.reduce((s, i) => s + (i.total || 0), 0);
   const paid = invoices.filter(i => i.status === 'bezahlt');
+  const openQuotes = quotes.filter(q => q.status === 'offen');
 
   document.getElementById('stats-grid').innerHTML = `
     <div class="stat-card"><div class="stat-label">Kunden</div><div class="stat-value">${customers.length}</div><div class="stat-sub">gesamt</div></div>
     <div class="stat-card"><div class="stat-label">Rechnungen</div><div class="stat-value">${invoices.length}</div><div class="stat-sub">${paid.length} bezahlt</div></div>
     <div class="stat-card"><div class="stat-label">Offene Rechnungen</div><div class="stat-value" style="color:var(--warning)">${open.length}</div><div class="stat-sub">${fmtMoney(openAmt)}</div></div>
-    <div class="stat-card"><div class="stat-label">Gesamtumsatz</div><div class="stat-value" style="color:var(--success)">${fmtMoney(total)}</div><div class="stat-sub">inkl. MwSt.</div></div>
+    <div class="stat-card"><div class="stat-label">Angebote</div><div class="stat-value" style="color:var(--primary)">${quotes.length}</div><div class="stat-sub">${openQuotes.length} offen</div></div>
   `;
 
   const recent = [...invoices].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
@@ -1619,6 +1690,8 @@ let invoiceLines = [];
 
 function openNewInvoice() {
   editingInvoiceId = null;
+  fromQuoteId = null;
+  _setModalForMode('invoice');
   document.getElementById('invoice-modal-title').textContent = 'Neue Rechnung';
   const s = getSettings();
   const today = new Date().toISOString().slice(0, 10);
@@ -1767,6 +1840,8 @@ function saveInvoice() {
     setSettings(s);
   }
   setInvoices(list);
+  if (fromQuoteId) { changeQuoteStatus(fromQuoteId, 'angenommen'); fromQuoteId = null; }
+  cloudSet('invoices', getInvoices());
   closeModal('modal-invoice');
   renderInvoices();
   renderDashboard();
@@ -1795,15 +1870,202 @@ function deleteInvoice(id) {
 }
 
 // ═══════════════════════════════════════════════════
+//  QUOTES
+// ═══════════════════════════════════════════════════
+
+let quoteFilter = '';
+
+function renderQuotes(filter = quoteFilter) {
+  quoteFilter = filter;
+  let list = getQuotes();
+  if (filter) list = list.filter(q => `${q.number} ${getCustomerName(q.customerId)}`.toLowerCase().includes(filter.toLowerCase()));
+  list = [...list].sort((a, b) => b.date.localeCompare(a.date));
+  if (list.length === 0) {
+    document.getElementById('quotes-table-wrap').innerHTML = emptyState('Noch keine Angebote. Erstellen Sie Ihr erstes Angebot.');
+    return;
+  }
+  document.getElementById('quotes-table-wrap').innerHTML = `
+    <table class="mobile-card-table"><thead><tr><th>Nr.</th><th>Datum</th><th>Gültig bis</th><th>Kunde</th><th>Betrag</th><th>Status</th><th></th></tr></thead>
+    <tbody>${list.map(q => `
+      <tr>
+        <td data-label="Nr."><strong>${q.number}</strong></td>
+        <td data-label="Datum">${fmtDate(q.date)}</td>
+        <td data-label="Gültig bis">${q.validUntil ? fmtDate(q.validUntil) : '—'}</td>
+        <td data-label="Kunde">${getCustomerName(q.customerId)}</td>
+        <td data-label="Betrag"><strong>${fmtMoney(q.total)}</strong></td>
+        <td data-label="Status"><select class="status-select status-${q.status}" onchange="changeQuoteStatus('${q.id}',this.value)" onclick="event.stopPropagation()">
+          <option value="offen" ${q.status==='offen'?'selected':''}>Offen</option>
+          <option value="angenommen" ${q.status==='angenommen'?'selected':''}>Angenommen</option>
+          <option value="abgelehnt" ${q.status==='abgelehnt'?'selected':''}>Abgelehnt</option>
+        </select></td>
+        <td class="no-label"><div class="actions-cell">
+          <button class="btn btn-ghost btn-sm btn-icon" title="Ansehen" onclick="viewQuote('${q.id}')">👁</button>
+          <button class="btn btn-ghost btn-sm btn-icon" title="Bearbeiten" onclick="editQuote('${q.id}')">✏️</button>
+          <button class="btn btn-ghost btn-sm btn-icon" title="In Rechnung umwandeln" onclick="convertToInvoice('${q.id}')">🔄</button>
+          <button class="btn btn-ghost btn-sm btn-icon" title="Löschen" onclick="deleteQuote('${q.id}')">🗑️</button>
+        </div></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function filterQuotes(v) { renderQuotes(v); }
+
+let docMode = 'invoice';
+let fromQuoteId = null;
+
+function _setModalForMode(mode) {
+  docMode = mode;
+  const isQ = mode === 'quote';
+  document.getElementById('inv-section-title').textContent = isQ ? 'Angebotsdaten' : 'Rechnungsdetails';
+  document.getElementById('inv-number-label').textContent = isQ ? 'Angebotsnummer' : 'Rechnungsnummer';
+  document.getElementById('inv-due-label').textContent = isQ ? 'Gültig bis (optional)' : 'Fälligkeitsdatum';
+  document.getElementById('inv-save-btn').textContent = isQ ? 'Angebot speichern' : 'Rechnung speichern';
+  const sel = document.getElementById('inv-status');
+  sel.innerHTML = isQ
+    ? `<option value="offen">Offen</option><option value="angenommen">Angenommen</option><option value="abgelehnt">Abgelehnt</option>`
+    : `<option value="offen">Offen</option><option value="bezahlt">Bezahlt</option><option value="überfällig">Überfällig</option><option value="storniert">Storniert</option>`;
+}
+
+function _nextQuoteNumber(s) {
+  const num = s.nextQuoteNum || 1;
+  const year = new Date().getFullYear();
+  return `A${year}${String(num).padStart(3, '0')}`;
+}
+
+function openNewQuote() {
+  editingInvoiceId = null;
+  fromQuoteId = null;
+  _setModalForMode('quote');
+  document.getElementById('invoice-modal-title').textContent = 'Neues Angebot';
+  const s = getSettings();
+  const today = new Date().toISOString().slice(0, 10);
+  const valid = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+  document.getElementById('inv-number').value = _nextQuoteNumber(s);
+  document.getElementById('inv-date').value = today;
+  document.getElementById('inv-due').value = valid;
+  document.getElementById('inv-status').value = 'offen';
+  document.getElementById('inv-notes').value = '';
+  document.getElementById('inv-vat-pct').textContent = s.vatRate !== undefined ? s.vatRate : 0;
+  populateCustomerSelect();
+  invoiceLines = [];
+  renderInvoiceLines();
+  openModal('modal-invoice');
+}
+
+function editQuote(id) {
+  const q = getQuotes().find(x => x.id === id);
+  if (!q) return;
+  editingInvoiceId = id;
+  fromQuoteId = null;
+  _setModalForMode('quote');
+  document.getElementById('invoice-modal-title').textContent = 'Angebot bearbeiten';
+  document.getElementById('inv-number').value = q.number;
+  document.getElementById('inv-date').value = q.date;
+  document.getElementById('inv-due').value = q.validUntil || '';
+  document.getElementById('inv-status').value = q.status;
+  document.getElementById('inv-notes').value = q.notes || '';
+  const s = getSettings();
+  document.getElementById('inv-vat-pct').textContent = s.vatRate !== undefined ? s.vatRate : 0;
+  populateCustomerSelect(q.customerId);
+  invoiceLines = q.lines ? JSON.parse(JSON.stringify(q.lines)) : [];
+  renderInvoiceLines();
+  openModal('modal-invoice');
+}
+
+function saveDocument() {
+  if (docMode === 'quote') saveQuote();
+  else saveInvoice();
+}
+
+function saveQuote() {
+  const customerId = document.getElementById('inv-customer').value;
+  if (!customerId) { toast('Bitte Kunden auswählen.', 'error'); return; }
+  if (invoiceLines.length === 0) { toast('Bitte mindestens eine Position hinzufügen.', 'error'); return; }
+  const net = invoiceLines.reduce((s, l) => s + l.qty * l.price, 0);
+  const vatRate = parseFloat(document.getElementById('inv-vat-pct').textContent) || 0;
+  const vat = net * vatRate / 100;
+  const q = {
+    id: editingInvoiceId || genId(),
+    number: document.getElementById('inv-number').value,
+    date: document.getElementById('inv-date').value,
+    validUntil: document.getElementById('inv-due').value,
+    status: document.getElementById('inv-status').value,
+    customerId,
+    lines: JSON.parse(JSON.stringify(invoiceLines)),
+    notes: document.getElementById('inv-notes').value,
+    net, vat, vatRate, total: net + vat,
+  };
+  const list = getQuotes();
+  if (editingInvoiceId) {
+    const i = list.findIndex(x => x.id === editingInvoiceId);
+    if (i >= 0) list[i] = q;
+  } else {
+    list.push(q);
+    const s = getSettings();
+    s.nextQuoteNum = (s.nextQuoteNum || 1) + 1;
+    setSettings(s);
+  }
+  setQuotes(list);
+  cloudSet('quotes', getQuotes());
+  closeModal('modal-invoice');
+  renderQuotes();
+  toast(editingInvoiceId ? 'Angebot aktualisiert.' : 'Angebot gespeichert.', 'success');
+}
+
+function changeQuoteStatus(id, newStatus) {
+  const list = getQuotes();
+  const q = list.find(x => x.id === id);
+  if (!q) return;
+  q.status = newStatus;
+  setQuotes(list);
+  const sel = document.querySelector(`select[onchange="changeQuoteStatus('${id}',this.value)"]`);
+  if (sel) sel.className = `status-select status-${newStatus}`;
+  toast('Status aktualisiert.', 'success');
+}
+
+function deleteQuote(id) {
+  confirm('Angebot wirklich löschen?', () => {
+    setQuotes(getQuotes().filter(q => q.id !== id));
+    renderQuotes();
+    toast('Angebot gelöscht.');
+  });
+}
+
+function convertToInvoice(quoteId) {
+  const q = getQuotes().find(x => x.id === quoteId);
+  if (!q) return;
+  editingInvoiceId = null;
+  fromQuoteId = quoteId;
+  _setModalForMode('invoice');
+  document.getElementById('invoice-modal-title').textContent = 'Rechnung aus Angebot';
+  const s = getSettings();
+  const today = new Date().toISOString().slice(0, 10);
+  const due = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
+  document.getElementById('inv-number').value = s.nextInvoiceNum || s.invoiceStart || 1001;
+  document.getElementById('inv-date').value = today;
+  document.getElementById('inv-due').value = due;
+  document.getElementById('inv-status').value = 'offen';
+  document.getElementById('inv-notes').value = q.notes || s.footer || '';
+  document.getElementById('inv-vat-pct').textContent = s.vatRate !== undefined ? s.vatRate : 0;
+  populateCustomerSelect(q.customerId);
+  invoiceLines = q.lines ? JSON.parse(JSON.stringify(q.lines)) : [];
+  renderInvoiceLines();
+  openModal('modal-invoice');
+}
+
+// ═══════════════════════════════════════════════════
 //  INVOICE VIEW & PRINT
 // ═══════════════════════════════════════════════════
 
 let currentViewInvoice = null;
+let currentViewType = 'invoice';
 
 function viewInvoice(id) {
   const inv = getInvoices().find(x => x.id === id);
   if (!inv) return;
   currentViewInvoice = inv;
+  currentViewType = 'invoice';
+  document.querySelector('#modal-view-invoice .modal-title').textContent = 'Rechnung ansehen';
   const s = getSettings();
   const cust = getCustomers().find(c => c.id === inv.customerId) || {};
   const body = document.getElementById('invoice-view-body');
@@ -1811,20 +2073,41 @@ function viewInvoice(id) {
     body.style.padding = '0';
     body.innerHTML = '<div style="padding:52px 20px;text-align:center;color:#8e8e93;font-size:14px">Vorschau wird geladen…</div>';
     openModal('modal-view-invoice');
-    _renderInvoicePreview(body, inv, cust, s);
+    _renderInvoicePreview(body, inv, cust, s, 'invoice');
   } else {
     body.style.padding = '';
-    body.innerHTML = buildInvoiceHTML(inv, cust, s);
+    body.innerHTML = buildInvoiceHTML(inv, cust, s, 'invoice');
     openModal('modal-view-invoice');
   }
 }
 
-async function _renderInvoicePreview(body, inv, cust, s) {
+function viewQuote(id) {
+  const q = getQuotes().find(x => x.id === id);
+  if (!q) return;
+  currentViewInvoice = q;
+  currentViewType = 'quote';
+  document.querySelector('#modal-view-invoice .modal-title').textContent = 'Angebot ansehen';
+  const s = getSettings();
+  const cust = getCustomers().find(c => c.id === q.customerId) || {};
+  const body = document.getElementById('invoice-view-body');
+  if (window.innerWidth < 768) {
+    body.style.padding = '0';
+    body.innerHTML = '<div style="padding:52px 20px;text-align:center;color:#8e8e93;font-size:14px">Vorschau wird geladen…</div>';
+    openModal('modal-view-invoice');
+    _renderInvoicePreview(body, q, cust, s, 'quote');
+  } else {
+    body.style.padding = '';
+    body.innerHTML = buildInvoiceHTML(q, cust, s, 'quote');
+    openModal('modal-view-invoice');
+  }
+}
+
+async function _renderInvoicePreview(body, inv, cust, s, type = 'invoice') {
   try {
     await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
   } catch(e) {
     body.style.padding = '';
-    body.innerHTML = buildInvoiceHTML(inv, cust, s);
+    body.innerHTML = buildInvoiceHTML(inv, cust, s, type);
     return;
   }
   const wrap = document.createElement('div');
@@ -1838,7 +2121,7 @@ async function _renderInvoicePreview(body, inv, cust, s) {
     'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
     'color:#111','font-size:11.5px','line-height:1.45'
   ].join(';');
-  wrap.innerHTML = buildInvoiceHTML(inv, cust, s);
+  wrap.innerHTML = buildInvoiceHTML(inv, cust, s, type);
   const tmpStyle = document.createElement('style');
   tmpStyle.id = '__preview_style__';
   tmpStyle.textContent = `
@@ -1883,14 +2166,19 @@ async function _renderInvoicePreview(body, inv, cust, s) {
     }
   } catch(e) {
     body.style.padding = '';
-    body.innerHTML = buildInvoiceHTML(inv, cust, s);
+    body.innerHTML = buildInvoiceHTML(inv, cust, s, type);
   }
   document.body.removeChild(wrap);
   const ps = document.getElementById('__preview_style__');
   if (ps) ps.remove();
 }
 
-function buildInvoiceHTML(inv, cust, s) {
+function buildInvoiceHTML(inv, cust, s, type = 'invoice') {
+  const isQuote = type === 'quote';
+  const docTitle = isQuote ? 'ANGEBOT' : 'RECHNUNG';
+  const recipientLabel = isQuote ? 'Empfänger' : 'Rechnungsempfänger';
+  const date2Label = isQuote ? 'Gültig bis' : 'Fällig';
+  const date2Value = isQuote ? inv.validUntil : inv.dueDate;
   const tpl = s.template || 'klassisch';
   const custAddr = [cust.company, `${cust.firstname || ''} ${cust.lastname || ''}`.trim(), cust.address, `${cust.zip || ''} ${cust.city || ''}`.trim(), cust.email].filter(Boolean).join('<br>');
   const companyAddr = [s.address, `${s.zip || ''} ${s.city || ''}`.trim(), s.phone, s.email].filter(Boolean).join('<br>');
@@ -1909,7 +2197,7 @@ function buildInvoiceHTML(inv, cust, s) {
       <div class="inv-total-row grand"><span>Gesamtbetrag</span><span>${fmtMoney(inv.total)}</span></div>
     </div>`;
   const notesHtml = inv.notes ? `<div style="margin-top:20px;padding:12px 16px;background:#f9fafb;border-radius:8px;font-size:13px;color:#555">${inv.notes}</div>` : '';
-  const footerHtml = s.iban ? `<div class="inv-footer">Bank: ${s.iban}</div>` : '';
+  const footerHtml = (!isQuote && s.iban) ? `<div class="inv-footer">Bank: ${s.iban}</div>` : '';
   const vatLine = s.vat ? `<p style="margin-top:4px;font-size:12px;color:#888">USt-IdNr.: ${s.vat}</p>` : '';
 
   if (tpl === 'modern') {
@@ -1923,12 +2211,12 @@ function buildInvoiceHTML(inv, cust, s) {
           </div>
         </div>
         <div style="text-align:right">
-          <div style="color:#fff;font-size:26px;font-weight:800;letter-spacing:.04em">RECHNUNG</div>
+          <div style="color:#fff;font-size:26px;font-weight:800;letter-spacing:.04em">${docTitle}</div>
           <div style="color:#94a3b8;font-size:12px;line-height:1.8">Nr. ${inv.number} · ${fmtDate(inv.date)}</div>
-          ${inv.dueDate ? `<div style="color:#94a3b8;font-size:12px">Fällig: ${fmtDate(inv.dueDate)}</div>` : ''}
+          ${date2Value ? `<div style="color:#94a3b8;font-size:12px">${date2Label}: ${fmtDate(date2Value)}</div>` : ''}
         </div>
       </div>
-      <div class="inv-customer"><h3>Rechnungsempfänger</h3><p>${custAddr || '—'}</p></div>
+      <div class="inv-customer"><h3>${recipientLabel}</h3><p>${custAddr || '—'}</p></div>
       <table class="inv-table">
         <thead><tr><th>Beschreibung</th><th style="text-align:center">Menge</th><th style="text-align:right">Einzelpreis</th><th style="text-align:right">Gesamt</th></tr></thead>
         <tbody>${rows}</tbody>
@@ -1941,7 +2229,7 @@ function buildInvoiceHTML(inv, cust, s) {
     return `
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
         <div>${logoHtml}<div style="font-size:18px;font-weight:700;margin-top:${s.logo?'8px':'0'}">${s.company || 'Ihr Unternehmen'}</div><div style="font-size:12px;color:#888;line-height:1.7;margin-top:2px">${companyAddr}</div>${vatLine}</div>
-        <div style="text-align:right"><div style="font-size:22px;font-weight:700;color:#111">RECHNUNG</div><div style="font-size:12px;color:#888;line-height:1.8;margin-top:4px"><strong>Nr.:</strong> ${inv.number}<br><strong>Datum:</strong> ${fmtDate(inv.date)}<br>${inv.dueDate?'<strong>Fällig:</strong> '+fmtDate(inv.dueDate):''}
+        <div style="text-align:right"><div style="font-size:22px;font-weight:700;color:#111">${docTitle}</div><div style="font-size:12px;color:#888;line-height:1.8;margin-top:4px"><strong>Nr.:</strong> ${inv.number}<br><strong>Datum:</strong> ${fmtDate(inv.date)}<br>${date2Value?`<strong>${date2Label}:</strong> `+fmtDate(date2Value):''}
         </div></div>
       </div>
       <hr style="border:none;border-top:1.5px solid #111;margin:12px 0 4px"/>
@@ -1959,7 +2247,7 @@ function buildInvoiceHTML(inv, cust, s) {
           <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:15px;border-top:2px solid #111;margin-top:4px"><span>Gesamt</span><span>${fmtMoney(inv.total)}</span></div>
         </div>
         ${notesHtml}
-      </div>${s.iban?`<div class="inv-footer">Bank: ${s.iban}</div>`:''}`;
+      </div>${!isQuote&&s.iban?`<div class="inv-footer">Bank: ${s.iban}</div>`:''}`;
 
   }
 
@@ -1976,12 +2264,12 @@ function buildInvoiceHTML(inv, cust, s) {
       </div>
       <div style="display:flex;gap:16px;margin-bottom:24px;">
         <div style="flex:1;background:#f9fafb;border-radius:8px;padding:14px 16px;">
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:6px">Rechnungsempfänger</div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:6px">${recipientLabel}</div>
           <div style="font-size:13px;line-height:1.7">${custAddr || '—'}</div>
         </div>
         <div style="background:#1e293b;border-radius:8px;padding:14px 16px;min-width:180px;text-align:right;">
-          <div style="color:#fff;font-size:16px;font-weight:700;margin-bottom:8px">RECHNUNG</div>
-          <div style="color:#94a3b8;font-size:12px;line-height:1.8"><strong style="color:#e2e8f0">Nr.:</strong> ${inv.number}<br><strong style="color:#e2e8f0">Datum:</strong> ${fmtDate(inv.date)}<br>${inv.dueDate?'<strong style="color:#e2e8f0">Fällig:</strong> '+fmtDate(inv.dueDate):''}</div>
+          <div style="color:#fff;font-size:16px;font-weight:700;margin-bottom:8px">${docTitle}</div>
+          <div style="color:#94a3b8;font-size:12px;line-height:1.8"><strong style="color:#e2e8f0">Nr.:</strong> ${inv.number}<br><strong style="color:#e2e8f0">Datum:</strong> ${fmtDate(inv.date)}<br>${date2Value?`<strong style="color:#e2e8f0">${date2Label}:</strong> `+fmtDate(date2Value):''}</div>
         </div>
       </div>
       <table class="inv-table">
@@ -1997,14 +2285,14 @@ function buildInvoiceHTML(inv, cust, s) {
     <div class="inv-header">
       <div class="inv-company">${logoHtml}${logoHtml?'<div style="margin-top:8px">':''}<h2>${s.company || 'Ihr Unternehmen'}</h2><p>${companyAddr}</p>${vatLine}${logoHtml?'</div>':''}</div>
       <div class="inv-meta">
-        <h1>RECHNUNG</h1>
+        <h1>${docTitle}</h1>
         <p><strong>Nr.:</strong> ${inv.number}<br>
            <strong>Datum:</strong> ${fmtDate(inv.date)}<br>
-           ${inv.dueDate ? '<strong>Fällig am:</strong> '+fmtDate(inv.dueDate)+'<br>' : ''}
+           ${date2Value ? `<strong>${date2Label}:</strong> `+fmtDate(date2Value)+'<br>' : ''}
            <strong>Status:</strong> ${statusBadge(inv.status)}</p>
       </div>
     </div>
-    <div class="inv-customer"><h3>Rechnungsempfänger</h3><p>${custAddr || '—'}</p></div>
+    <div class="inv-customer"><h3>${recipientLabel}</h3><p>${custAddr || '—'}</p></div>
     <table class="inv-table">
       <thead><tr><th>Beschreibung</th><th style="text-align:center">Menge</th><th style="text-align:right">Einzelpreis</th><th style="text-align:right">Gesamt</th></tr></thead>
       <tbody>${rows}</tbody>
@@ -2042,6 +2330,7 @@ async function printInvoice() {
 
   const s = getSettings();
   const cust = getCustomers().find(c => c.id === currentViewInvoice.customerId) || {};
+  const docType = typeof currentViewType !== 'undefined' ? currentViewType : 'invoice';
 
   // Build a clean A4 render container (794×1123px = A4 at 96dpi)
   const wrap = document.createElement('div');
@@ -2055,7 +2344,7 @@ async function printInvoice() {
     'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
     'color:#111', 'font-size:11.5px', 'line-height:1.45'
   ].join(';');
-  wrap.innerHTML = buildInvoiceHTML(currentViewInvoice, cust, s);
+  wrap.innerHTML = buildInvoiceHTML(currentViewInvoice, cust, s, docType);
 
   // Style overrides for PDF: IBAN pushed to bottom
   const tmpStyle = document.createElement('style');
@@ -2125,7 +2414,7 @@ async function printInvoice() {
       }
     }
 
-    pdf.save('Rechnung-' + currentViewInvoice.number + '.pdf');
+    pdf.save((docType === 'quote' ? 'Angebot-' : 'Rechnung-') + currentViewInvoice.number + '.pdf');
     toast('PDF gespeichert!', 'success');
   } catch(e) {
     toast('Fehler: ' + e.message, 'error');
@@ -2155,6 +2444,7 @@ function loadSettings() {
   document.getElementById('s-footer').value = s.footer || '';
   document.getElementById('s-vat-rate').value = s.vatRate !== undefined ? s.vatRate : 0;
   document.getElementById('s-invoice-start').value = s.nextInvoiceNum || s.invoiceStart || 1001;
+  document.getElementById('s-quote-start').value = s.nextQuoteNum || 1;
   setLogoPreview(s.logo || '');
   selectTemplate(s.template || 'klassisch', false);
 }
@@ -2220,6 +2510,7 @@ function saveSettings() {
   s.footer = document.getElementById('s-footer').value.trim();
   s.vatRate = parseFloat(document.getElementById('s-vat-rate').value) || 0;
   s.nextInvoiceNum = parseInt(document.getElementById('s-invoice-start').value) || 1001;
+  s.nextQuoteNum = parseInt(document.getElementById('s-quote-start').value) || 1;
   const sel = document.querySelector('.template-card.selected');
   if (sel) s.template = sel.dataset.tpl;
   setSettings(s);
@@ -2256,6 +2547,30 @@ function emptyState(msg) {
 }
 
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function toggleBelegeMenu(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('belege-submenu');
+  if (!menu) return;
+  if (menu.classList.contains('hidden')) {
+    menu.classList.remove('hidden');
+    document.getElementById('belege-backdrop').style.display = 'block';
+  } else {
+    closeBelegeMenu();
+  }
+}
+
+function closeBelegeMenu() {
+  const menu = document.getElementById('belege-submenu');
+  if (menu) menu.classList.add('hidden');
+  const bd = document.getElementById('belege-backdrop');
+  if (bd) bd.style.display = 'none';
+}
+
+function navigateBelege(page) {
+  closeBelegeMenu();
+  navigate(page);
+}
 
 // ═══════════════════════════════════════════════════
 //  DEMO DATA (first run)
