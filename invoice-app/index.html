@@ -1177,10 +1177,17 @@ function renderDashboard() {
   if (recent.length === 0) {
     document.getElementById('recent-invoices-list').innerHTML = emptyState('Noch keine Rechnungen vorhanden.');
   } else {
-    document.getElementById('recent-invoices-list').innerHTML = `<table><thead><tr><th>Nr.</th><th>Kunde</th><th>Betrag</th><th>Status</th></tr></thead><tbody>
-      ${recent.map(inv => `<tr style="cursor:pointer" onclick="viewInvoice('${inv.id}')">
-        <td>${inv.number}</td><td>${getCustomerName(inv.customerId)}</td>
-        <td>${fmtMoney(inv.total)}</td><td>${statusBadge(inv.status)}</td>
+    document.getElementById('recent-invoices-list').innerHTML = `<table class="mobile-card-table"><thead><tr><th>Nr.</th><th>Kunde</th><th>Betrag</th><th>Status</th></tr></thead><tbody>
+      ${recent.map(inv => `<tr>
+        <td data-label="Nr." onclick="viewInvoice('${inv.id}')" style="cursor:pointer">${inv.number}</td>
+        <td data-label="Kunde" onclick="viewInvoice('${inv.id}')" style="cursor:pointer">${getCustomerName(inv.customerId)}</td>
+        <td data-label="Betrag" onclick="viewInvoice('${inv.id}')" style="cursor:pointer">${fmtMoney(inv.total)}</td>
+        <td data-label="Status"><select class="status-select status-${inv.status}" onchange="changeInvoiceStatus('${inv.id}',this.value)" onclick="event.stopPropagation()">
+          <option value="offen" ${inv.status==='offen'?'selected':''}>Offen</option>
+          <option value="bezahlt" ${inv.status==='bezahlt'?'selected':''}>Bezahlt</option>
+          <option value="überfällig" ${inv.status==='überfällig'?'selected':''}>Überfällig</option>
+          <option value="storniert" ${inv.status==='storniert'?'selected':''}>Storniert</option>
+        </select></td>
       </tr>`).join('')}
     </tbody></table>`;
   }
