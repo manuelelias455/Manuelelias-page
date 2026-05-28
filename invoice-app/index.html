@@ -1888,10 +1888,11 @@ function printInvoice() {
   if (!currentViewInvoice) return;
   const s = getSettings();
   const cust = getCustomers().find(c => c.id === currentViewInvoice.customerId) || {};
-  document.getElementById('print-area').innerHTML = buildInvoiceHTML(currentViewInvoice, cust, s);
-  document.getElementById('print-area').style.display = 'block';
-  window.print();
-  document.getElementById('print-area').style.display = 'none';
+  const pa = document.getElementById('print-area');
+  pa.innerHTML = buildInvoiceHTML(currentViewInvoice, cust, s);
+  pa.style.display = 'block';
+  window.onafterprint = () => { pa.style.display = 'none'; };
+  setTimeout(() => { window.print(); }, 200);
 }
 
 // ═══════════════════════════════════════════════════
