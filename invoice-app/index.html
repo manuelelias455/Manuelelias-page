@@ -1854,7 +1854,7 @@ function buildInvoiceHTML(inv, cust, s) {
         <tbody>${rows}</tbody>
       </table>
       <div class="inv-spacer"></div>
-      <div class="inv-bottom">${totalsHtml}${notesHtml}${footerHtml}</div>`;
+      <div class="inv-bottom">${totalsHtml}${notesHtml}</div>${footerHtml}`;
   }
 
   if (tpl === 'minimal') {
@@ -1878,8 +1878,9 @@ function buildInvoiceHTML(inv, cust, s) {
           <div style="display:flex;justify-content:space-between;padding:4px 0;color:#555"><span>MwSt. (${inv.vatRate!==undefined?inv.vatRate:0}%)</span><span>${fmtMoney(inv.vat)}</span></div>
           <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:15px;border-top:2px solid #111;margin-top:4px"><span>Gesamt</span><span>${fmtMoney(inv.total)}</span></div>
         </div>
-        ${notesHtml}${s.iban?`<hr style="border:none;border-top:1px solid #e5e7eb;margin-top:10px"/><div style="font-size:11px;color:#888;margin-top:6px">Bank: ${s.iban}</div>`:''}
-      </div>`;
+        ${notesHtml}
+      </div>${s.iban?`<div class="inv-footer">Bank: ${s.iban}</div>`:''}`;
+
   }
 
   if (tpl === 'elegant') {
@@ -1908,7 +1909,7 @@ function buildInvoiceHTML(inv, cust, s) {
         <tbody>${rows}</tbody>
       </table>
       <div class="inv-spacer"></div>
-      <div class="inv-bottom">${totalsHtml}${notesHtml}${footerHtml}</div>`;
+      <div class="inv-bottom">${totalsHtml}${notesHtml}</div>${footerHtml}`;
   }
 
   // Default: klassisch
@@ -1929,7 +1930,7 @@ function buildInvoiceHTML(inv, cust, s) {
       <tbody>${rows}</tbody>
     </table>
     <div class="inv-spacer"></div>
-    <div class="inv-bottom">${totalsHtml}${notesHtml}${footerHtml}</div>`;
+    <div class="inv-bottom">${totalsHtml}${notesHtml}</div>${footerHtml}`;
 }
 
 function printInvoice() {
@@ -1981,7 +1982,7 @@ function printInvoice() {
       .inv-totals{margin-top:0}
       .inv-total-row{font-size:8pt;padding:0.8mm 0}
       .inv-total-row.grand{font-size:10pt;padding-top:1.5mm;margin-top:1mm}
-      .inv-footer{margin-top:3mm;padding-top:2.5mm;font-size:7.5pt}
+      .inv-footer{position:fixed;bottom:14mm;left:0;right:0;margin:0;padding-top:2mm;border-top:1px solid #e5e7eb;font-size:7.5pt;color:#888;z-index:99999}
     }
   `;
   const win = window.open('', '_blank', 'width=794,height=1050');
