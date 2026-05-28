@@ -1960,8 +1960,8 @@ function printInvoice() {
     .inv-footer{margin-top:40px;border-top:1px solid #e5e7eb;padding-top:16px;font-size:12px;color:#888}
     @media print{
       *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-      @page{margin:14mm;size:A4}
-      body{margin:0;padding:0;display:block;font-size:9pt}
+      @page{margin:0;size:A4}
+      body{margin:14mm;padding:0;display:block;min-height:0}
       .inv-header{margin-bottom:5mm}
       .inv-company h2{font-size:12pt;margin-bottom:1mm}
       .inv-company p{font-size:7.5pt;line-height:1.5}
