@@ -781,7 +781,7 @@
     <div class="modal-body" id="invoice-view-body"></div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-view-invoice')">Schließen</button>
-      <button class="btn btn-primary" onclick="printInvoice()">
+      <button class="btn btn-primary" id="print-btn" onclick="printInvoice()">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         Drucken / PDF
       </button>
@@ -1933,63 +1933,129 @@ function buildInvoiceHTML(inv, cust, s) {
     <div class="inv-bottom">${totalsHtml}${notesHtml}</div>${footerHtml}`;
 }
 
-function printInvoice() {
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    if (document.querySelector('script[src="'+src+'"]')) { res(); return; }
+    const el = document.createElement('script');
+    el.src = src; el.onload = res; el.onerror = rej;
+    document.head.appendChild(el);
+  });
+}
+
+async function printInvoice() {
   if (!currentViewInvoice) return;
+  const btn = document.getElementById('print-btn');
+  const btnHTML = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'PDF…'; }
+  toast('PDF wird erstellt…');
+
+  try {
+    await Promise.all([
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+    ]);
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.innerHTML = btnHTML; }
+    toast('Bibliothek nicht geladen. Bitte Internet prüfen.', 'error');
+    return;
+  }
+
   const s = getSettings();
   const cust = getCustomers().find(c => c.id === currentViewInvoice.customerId) || {};
-  const body = buildInvoiceHTML(currentViewInvoice, cust, s);
-  const invCSS = `
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;padding:30px;color:#111;display:flex;flex-direction:column;min-height:267mm}
-    .inv-spacer{flex:1;min-height:0}
-    .inv-header{display:flex;justify-content:space-between;margin-bottom:32px}
-    .inv-company h2{font-size:20px;font-weight:700}
-    .inv-company p{font-size:13px;color:#555;line-height:1.6}
-    .inv-meta{text-align:right}
-    .inv-meta h1{font-size:28px;font-weight:800;color:#374151;margin-bottom:6px}
-    .inv-meta p{font-size:13px;color:#555;line-height:1.6}
-    .inv-customer{background:#f8f9fa;border-left:4px solid #6b7280;padding:14px 18px;margin-bottom:28px;border-radius:0 8px 8px 0}
-    .inv-customer h3{font-size:11px;text-transform:uppercase;color:#888;letter-spacing:.06em;margin-bottom:6px}
-    .inv-customer p{font-size:14px;line-height:1.7}
-    .inv-table{width:100%;border-collapse:collapse;margin-bottom:20px}
-    .inv-table th{background:#1e293b;color:#fff;padding:10px 14px;text-align:left;font-size:13px}
-    .inv-table td{padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:13px}
-    .inv-table tr:last-child td{border-bottom:none}
-    .inv-totals{margin-left:auto;width:280px}
-    .inv-total-row{display:flex;justify-content:space-between;padding:5px 0;font-size:14px}
-    .inv-total-row.grand{font-weight:700;font-size:16px;border-top:2px solid #1e293b;padding-top:8px;margin-top:4px}
-    .inv-footer{margin-top:40px;border-top:1px solid #e5e7eb;padding-top:16px;font-size:12px;color:#888}
-    @media print{
-      *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-      @page{margin:0;size:A4}
-      body{margin:14mm;padding:0;display:block;min-height:0}
-      body::before,body::after{content:'';display:block;position:fixed;left:0;right:0;height:14mm;background:#fff;z-index:9999}
-      body::before{top:0}
-      body::after{bottom:0}
-      .inv-header{margin-bottom:5mm}
-      .inv-company h2{font-size:12pt;margin-bottom:1mm}
-      .inv-company p{font-size:7.5pt;line-height:1.5}
-      .inv-meta h1{font-size:16pt;margin-bottom:2mm}
-      .inv-meta p{font-size:7.5pt;line-height:1.6}
-      .inv-customer{padding:2.5mm 3.5mm;margin-bottom:5mm}
-      .inv-customer h3{font-size:6.5pt;margin-bottom:1.5mm}
-      .inv-customer p{font-size:8pt;line-height:1.55}
-      .inv-table th{padding:1.8mm 3mm;font-size:7.5pt}
-      .inv-table td{padding:1.8mm 3mm;font-size:8pt}
-      .inv-table{margin-bottom:0}
-      .inv-spacer{display:block;flex:none;height:8mm}
-      .inv-bottom{break-inside:avoid;page-break-inside:avoid}
-      .inv-totals{margin-top:0}
-      .inv-total-row{font-size:8pt;padding:0.8mm 0}
-      .inv-total-row.grand{font-size:10pt;padding-top:1.5mm;margin-top:1mm}
-      .inv-footer{position:fixed;bottom:14mm;left:0;right:0;margin:0;padding-top:2mm;border-top:1px solid #e5e7eb;font-size:7.5pt;color:#888;z-index:99999}
-    }
+
+  // Build a clean A4 render container (794×1123px = A4 at 96dpi)
+  const wrap = document.createElement('div');
+  wrap.id = '__pdf_wrap__';
+  wrap.style.cssText = [
+    'position:fixed', 'left:-9999px', 'top:0',
+    'width:794px', 'min-height:1123px',
+    'background:#fff', 'box-sizing:border-box',
+    'padding:57px',           // ~15mm margin
+    'display:flex', 'flex-direction:column',
+    'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    'color:#111', 'font-size:13px', 'line-height:1.5'
+  ].join(';');
+  wrap.innerHTML = buildInvoiceHTML(currentViewInvoice, cust, s);
+
+  // Style overrides for PDF: IBAN pushed to bottom
+  const tmpStyle = document.createElement('style');
+  tmpStyle.id = '__pdf_style__';
+  tmpStyle.textContent = `
+    #__pdf_wrap__ { color:#111 }
+    #__pdf_wrap__ .inv-header { display:flex;justify-content:space-between;margin-bottom:28px }
+    #__pdf_wrap__ .inv-company h2 { font-size:20px;font-weight:700;margin:0 0 2px }
+    #__pdf_wrap__ .inv-company p { font-size:12px;color:#555;line-height:1.6 }
+    #__pdf_wrap__ .inv-meta { text-align:right }
+    #__pdf_wrap__ .inv-meta h1 { font-size:26px;font-weight:800;color:#374151;margin:0 0 4px }
+    #__pdf_wrap__ .inv-meta p { font-size:12px;color:#555;line-height:1.7 }
+    #__pdf_wrap__ .inv-customer { background:#f8f9fa;border-left:4px solid #6b7280;padding:12px 16px;margin-bottom:24px;border-radius:0 6px 6px 0 }
+    #__pdf_wrap__ .inv-customer h3 { font-size:10px;text-transform:uppercase;color:#888;letter-spacing:.06em;margin:0 0 5px }
+    #__pdf_wrap__ .inv-customer p { font-size:13px;line-height:1.7;margin:0 }
+    #__pdf_wrap__ .inv-table { width:100%;border-collapse:collapse;margin-bottom:16px }
+    #__pdf_wrap__ .inv-table th { background:#1e293b;color:#fff;padding:9px 13px;text-align:left;font-size:12px }
+    #__pdf_wrap__ .inv-table td { padding:9px 13px;border-bottom:1px solid #e5e7eb;font-size:12px }
+    #__pdf_wrap__ .inv-table tr:last-child td { border-bottom:none }
+    #__pdf_wrap__ .inv-spacer { flex:1;min-height:0;max-height:80px }
+    #__pdf_wrap__ .inv-bottom { }
+    #__pdf_wrap__ .inv-totals { margin-left:auto;width:260px }
+    #__pdf_wrap__ .inv-total-row { display:flex;justify-content:space-between;padding:5px 0;font-size:13px }
+    #__pdf_wrap__ .inv-total-row.grand { font-weight:700;font-size:15px;border-top:2px solid #1e293b;padding-top:7px;margin-top:3px }
+    #__pdf_wrap__ .inv-footer { margin-top:auto;border-top:1px solid #e5e7eb;padding-top:14px;font-size:11px;color:#888 }
   `;
-  const win = window.open('', '_blank', 'width=794,height=1050');
-  if (!win) { toast('Bitte Pop-ups für diese Seite erlauben und nochmals tippen.', 'error'); return; }
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rechnung ${currentViewInvoice.number}</title><style>${invCSS}</style></head><body>${body}<script>window.onload=function(){setTimeout(function(){window.print();},400);};<\/script></body></html>`);
-  win.document.close();
-  win.focus();
+  document.head.appendChild(tmpStyle);
+  document.body.appendChild(wrap);
+
+  // Wait for logo to load
+  await Promise.all([...wrap.querySelectorAll('img')].map(img =>
+    new Promise(r => { if (img.complete) r(); else { img.onload = img.onerror = r; } })
+  ));
+  await new Promise(r => setTimeout(r, 150));
+
+  try {
+    const canvas = await html2canvas(wrap, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      width: 794,
+      height: Math.max(1123, wrap.scrollHeight)
+    });
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const W = 210, H = 297;
+    const imgH = (canvas.height / canvas.width) * W;
+
+    if (imgH <= H) {
+      // Single page
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, W, imgH);
+    } else {
+      // Multi-page: slice the canvas into A4-height chunks
+      const pxPerPage = Math.round((H / W) * canvas.width);
+      let yPx = 0;
+      while (yPx < canvas.height) {
+        if (yPx > 0) pdf.addPage();
+        const sliceH = Math.min(pxPerPage, canvas.height - yPx);
+        const tmp = document.createElement('canvas');
+        tmp.width = canvas.width; tmp.height = sliceH;
+        tmp.getContext('2d').drawImage(canvas, 0, yPx, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+        pdf.addImage(tmp.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, W, (sliceH / canvas.width) * W);
+        yPx += pxPerPage;
+      }
+    }
+
+    pdf.save('Rechnung-' + currentViewInvoice.number + '.pdf');
+    toast('PDF gespeichert!', 'success');
+  } catch(e) {
+    toast('Fehler: ' + e.message, 'error');
+  }
+
+  // Cleanup
+  document.body.removeChild(wrap);
+  const ps = document.getElementById('__pdf_style__');
+  if (ps) ps.remove();
+  if (btn) { btn.disabled = false; btn.innerHTML = btnHTML; }
 }
 
 // ═══════════════════════════════════════════════════
