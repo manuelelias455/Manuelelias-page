@@ -1910,15 +1910,34 @@ function printInvoice() {
   const s = getSettings();
   const cust = getCustomers().find(c => c.id === currentViewInvoice.customerId) || {};
   const body = buildInvoiceHTML(currentViewInvoice, cust, s);
-  const css = Array.from(document.styleSheets).map(sheet => {
-    try { return Array.from(sheet.cssRules).map(r => r.cssText).join('\n'); } catch { return ''; }
-  }).join('\n');
+  const invCSS = `
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;padding:30px;color:#111}
+    .inv-header{display:flex;justify-content:space-between;margin-bottom:32px}
+    .inv-company h2{font-size:20px;font-weight:700}
+    .inv-company p{font-size:13px;color:#555;line-height:1.6}
+    .inv-meta{text-align:right}
+    .inv-meta h1{font-size:28px;font-weight:800;color:#374151;margin-bottom:6px}
+    .inv-meta p{font-size:13px;color:#555;line-height:1.6}
+    .inv-customer{background:#f8f9fa;border-left:4px solid #6b7280;padding:14px 18px;margin-bottom:28px;border-radius:0 8px 8px 0}
+    .inv-customer h3{font-size:11px;text-transform:uppercase;color:#888;letter-spacing:.06em;margin-bottom:6px}
+    .inv-customer p{font-size:14px;line-height:1.7}
+    .inv-table{width:100%;border-collapse:collapse;margin-bottom:20px}
+    .inv-table th{background:#1e293b;color:#fff;padding:10px 14px;text-align:left;font-size:13px}
+    .inv-table td{padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:13px}
+    .inv-table tr:last-child td{border-bottom:none}
+    .inv-totals{margin-left:auto;width:280px}
+    .inv-total-row{display:flex;justify-content:space-between;padding:5px 0;font-size:14px}
+    .inv-total-row.grand{font-weight:700;font-size:16px;border-top:2px solid #1e293b;padding-top:8px;margin-top:4px}
+    .inv-footer{margin-top:40px;border-top:1px solid #e5e7eb;padding-top:16px;font-size:12px;color:#888}
+    @media print{body{padding:20px}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  `;
   const win = window.open('', '_blank', 'width=900,height=700');
-  if (!win) { toast('Bitte Pop-ups für diese Seite erlauben.', 'error'); return; }
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rechnung ${currentViewInvoice.number}</title><style>${css}</style></head><body style="background:#fff;padding:30px;">${body}</body></html>`);
+  if (!win) { toast('Bitte Pop-ups für diese Seite erlauben und nochmals tippen.', 'error'); return; }
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rechnung ${currentViewInvoice.number}</title><style>${invCSS}</style></head><body>${body}</body></html>`);
   win.document.close();
   win.focus();
-  setTimeout(() => { win.print(); }, 400);
+  setTimeout(() => { win.print(); }, 500);
 }
 
 // ═══════════════════════════════════════════════════
