@@ -1175,6 +1175,16 @@ async function startApp() {
   document.getElementById('sidebar-user').textContent = '👤 ' + currentUser;
   initFirebase();
   if (db) {
+    // Sync current account to Firestore so other devices can login
+    const userData = getUserData(currentUser);
+    if (userData) {
+      try {
+        const existing = await db.collection('__accounts__').doc(currentUser).get();
+        if (!existing.exists) {
+          await db.collection('__accounts__').doc(currentUser).set(userData);
+        }
+      } catch(e) {}
+    }
     const pulled = await pullFromCloud();
     if (!pulled) seedDemoData();
   } else {
