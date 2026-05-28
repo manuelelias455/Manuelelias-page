@@ -1801,6 +1801,7 @@ function buildInvoiceHTML(inv, cust, s) {
         </div>
       </div>
       <div class="inv-customer"><h3>Rechnungsempfänger</h3><p>${custAddr || '—'}</p></div>
+      <div class="inv-spacer"></div>
       <table class="inv-table">
         <thead><tr><th>Beschreibung</th><th style="text-align:center">Menge</th><th style="text-align:right">Einzelpreis</th><th style="text-align:right">Gesamt</th></tr></thead>
         <tbody>${rows}</tbody>
@@ -1818,6 +1819,7 @@ function buildInvoiceHTML(inv, cust, s) {
       <hr style="border:none;border-top:1.5px solid #111;margin:12px 0 4px"/>
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 20px"/>
       <div style="margin-bottom:20px;font-size:13px;line-height:1.8"><strong style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#888">An</strong><br>${custAddr || '—'}</div>
+      <div class="inv-spacer"></div>
       <table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px">
         <thead><tr style="border-bottom:2px solid #111"><th style="padding:6px 0;text-align:left">Beschreibung</th><th style="padding:6px 0;text-align:center">Menge</th><th style="padding:6px 0;text-align:right">Einzelpreis</th><th style="padding:6px 0;text-align:right">Gesamt</th></tr></thead>
         <tbody>${(inv.lines||[]).map(l=>`<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:8px 0">${l.name}${l.description?'<br><span style="color:#888;font-size:12px">'+l.description+'</span>':''}</td><td style="padding:8px 0;text-align:center">${l.qty} ${l.unit}</td><td style="padding:8px 0;text-align:right">${fmtMoney(l.price)}</td><td style="padding:8px 0;text-align:right">${fmtMoney(l.qty*l.price)}</td></tr>`).join('')}</tbody>
@@ -1851,6 +1853,7 @@ function buildInvoiceHTML(inv, cust, s) {
           <div style="color:#94a3b8;font-size:12px;line-height:1.8"><strong style="color:#e2e8f0">Nr.:</strong> ${inv.number}<br><strong style="color:#e2e8f0">Datum:</strong> ${fmtDate(inv.date)}<br>${inv.dueDate?'<strong style="color:#e2e8f0">Fällig:</strong> '+fmtDate(inv.dueDate):''}</div>
         </div>
       </div>
+      <div class="inv-spacer"></div>
       <table class="inv-table">
         <thead><tr><th>Beschreibung</th><th style="text-align:center">Menge</th><th style="text-align:right">Einzelpreis</th><th style="text-align:right">Gesamt</th></tr></thead>
         <tbody>${rows}</tbody>
@@ -1871,6 +1874,7 @@ function buildInvoiceHTML(inv, cust, s) {
       </div>
     </div>
     <div class="inv-customer"><h3>Rechnungsempfänger</h3><p>${custAddr || '—'}</p></div>
+    <div class="inv-spacer"></div>
     <table class="inv-table">
       <thead><tr><th>Beschreibung</th><th style="text-align:center">Menge</th><th style="text-align:right">Einzelpreis</th><th style="text-align:right">Gesamt</th></tr></thead>
       <tbody>${rows}</tbody>
@@ -1885,7 +1889,8 @@ function printInvoice() {
   const body = buildInvoiceHTML(currentViewInvoice, cust, s);
   const invCSS = `
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;padding:30px;color:#111}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;padding:30px;color:#111;display:flex;flex-direction:column;min-height:267mm}
+    .inv-spacer{flex:1;min-height:0}
     .inv-header{display:flex;justify-content:space-between;margin-bottom:32px}
     .inv-company h2{font-size:20px;font-weight:700}
     .inv-company p{font-size:13px;color:#555;line-height:1.6}
@@ -1912,10 +1917,9 @@ function printInvoice() {
   `;
   const win = window.open('', '_blank', 'width=900,height=700');
   if (!win) { toast('Bitte Pop-ups für diese Seite erlauben und nochmals tippen.', 'error'); return; }
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rechnung ${currentViewInvoice.number}</title><style>${invCSS}</style></head><body>${body}</body></html>`);
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rechnung ${currentViewInvoice.number}</title><style>${invCSS}</style></head><body>${body}<script>window.onload=function(){setTimeout(function(){window.print();},400);};<\/script></body></html>`);
   win.document.close();
   win.focus();
-  setTimeout(() => { win.print(); }, 500);
 }
 
 // ═══════════════════════════════════════════════════
