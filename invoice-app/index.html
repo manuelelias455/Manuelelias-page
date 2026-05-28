@@ -1801,11 +1801,11 @@ function buildInvoiceHTML(inv, cust, s) {
         </div>
       </div>
       <div class="inv-customer"><h3>Rechnungsempfänger</h3><p>${custAddr || '—'}</p></div>
-      <div class="inv-spacer"></div>
       <table class="inv-table">
         <thead><tr><th>Beschreibung</th><th style="text-align:center">Menge</th><th style="text-align:right">Einzelpreis</th><th style="text-align:right">Gesamt</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
+      <div class="inv-spacer"></div>
       ${totalsHtml}${notesHtml}${footerHtml}`;
   }
 
@@ -1819,11 +1819,11 @@ function buildInvoiceHTML(inv, cust, s) {
       <hr style="border:none;border-top:1.5px solid #111;margin:12px 0 4px"/>
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 20px"/>
       <div style="margin-bottom:20px;font-size:13px;line-height:1.8"><strong style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#888">An</strong><br>${custAddr || '—'}</div>
-      <div class="inv-spacer"></div>
       <table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px">
         <thead><tr style="border-bottom:2px solid #111"><th style="padding:6px 0;text-align:left">Beschreibung</th><th style="padding:6px 0;text-align:center">Menge</th><th style="padding:6px 0;text-align:right">Einzelpreis</th><th style="padding:6px 0;text-align:right">Gesamt</th></tr></thead>
         <tbody>${(inv.lines||[]).map(l=>`<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:8px 0">${l.name}${l.description?'<br><span style="color:#888;font-size:12px">'+l.description+'</span>':''}</td><td style="padding:8px 0;text-align:center">${l.qty} ${l.unit}</td><td style="padding:8px 0;text-align:right">${fmtMoney(l.price)}</td><td style="padding:8px 0;text-align:right">${fmtMoney(l.qty*l.price)}</td></tr>`).join('')}</tbody>
       </table>
+      <div class="inv-spacer"></div>
       <div style="margin-left:auto;width:260px;font-size:13px">
         <div style="display:flex;justify-content:space-between;padding:4px 0;color:#555"><span>Nettobetrag</span><span>${fmtMoney(inv.net)}</span></div>
         <div style="display:flex;justify-content:space-between;padding:4px 0;color:#555"><span>MwSt. (${inv.vatRate!==undefined?inv.vatRate:0}%)</span><span>${fmtMoney(inv.vat)}</span></div>
@@ -1853,11 +1853,11 @@ function buildInvoiceHTML(inv, cust, s) {
           <div style="color:#94a3b8;font-size:12px;line-height:1.8"><strong style="color:#e2e8f0">Nr.:</strong> ${inv.number}<br><strong style="color:#e2e8f0">Datum:</strong> ${fmtDate(inv.date)}<br>${inv.dueDate?'<strong style="color:#e2e8f0">Fällig:</strong> '+fmtDate(inv.dueDate):''}</div>
         </div>
       </div>
-      <div class="inv-spacer"></div>
       <table class="inv-table">
         <thead><tr><th>Beschreibung</th><th style="text-align:center">Menge</th><th style="text-align:right">Einzelpreis</th><th style="text-align:right">Gesamt</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
+      <div class="inv-spacer"></div>
       ${totalsHtml}${notesHtml}${footerHtml}`;
   }
 
@@ -1874,11 +1874,11 @@ function buildInvoiceHTML(inv, cust, s) {
       </div>
     </div>
     <div class="inv-customer"><h3>Rechnungsempfänger</h3><p>${custAddr || '—'}</p></div>
-    <div class="inv-spacer"></div>
     <table class="inv-table">
       <thead><tr><th>Beschreibung</th><th style="text-align:center">Menge</th><th style="text-align:right">Einzelpreis</th><th style="text-align:right">Gesamt</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
+    <div class="inv-spacer"></div>
     ${totalsHtml}${notesHtml}${footerHtml}`;
 }
 
