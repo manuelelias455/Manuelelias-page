@@ -1903,7 +1903,12 @@ function printInvoice() {
     .inv-total-row{display:flex;justify-content:space-between;padding:5px 0;font-size:14px}
     .inv-total-row.grand{font-weight:700;font-size:16px;border-top:2px solid #1e293b;padding-top:8px;margin-top:4px}
     .inv-footer{margin-top:40px;border-top:1px solid #e5e7eb;padding-top:16px;font-size:12px;color:#888}
-    @media print{body{padding:20px}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+    @media print{
+      body{padding:20px}
+      *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      @page{margin:0;size:A4}
+      body{margin:15mm}
+    }
   `;
   const win = window.open('', '_blank', 'width=900,height=700');
   if (!win) { toast('Bitte Pop-ups für diese Seite erlauben und nochmals tippen.', 'error'); return; }
