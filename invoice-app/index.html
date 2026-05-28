@@ -205,6 +205,26 @@
       .inv-meta { text-align: left; }
       .inv-totals { width: 100%; }
       .positions-table th:nth-child(2), .positions-table td:nth-child(2) { display: none; }
+
+      /* Card-style tables on mobile */
+      .mobile-card-table thead { display: none; }
+      .mobile-card-table tbody tr {
+        display: block; background: #fff; border-radius: 10px;
+        margin-bottom: 10px; padding: 12px 14px;
+        box-shadow: 0 1px 3px rgba(0,0,0,.07); border: 1px solid var(--border);
+      }
+      .mobile-card-table tbody td {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 5px 0; border: none; font-size: 13px; gap: 8px;
+      }
+      .mobile-card-table tbody td:empty { display: none; }
+      .mobile-card-table tbody td::before {
+        content: attr(data-label); font-size: 11px; color: var(--text-muted);
+        font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
+        flex-shrink: 0; min-width: 70px;
+      }
+      .mobile-card-table tbody td.no-label::before { display: none; }
+      .mobile-card-table tbody td.no-label { justify-content: flex-end; }
     }
 
     /* ── PRINT ── */
@@ -1182,15 +1202,15 @@ function renderCustomers(filter = customerFilter) {
     return;
   }
   document.getElementById('customers-table-wrap').innerHTML = `
-    <table><thead><tr><th>Name</th><th>Firma</th><th>E-Mail</th><th>Telefon</th><th>Ort</th><th></th></tr></thead>
+    <table class="mobile-card-table"><thead><tr><th>Name</th><th>Firma</th><th>E-Mail</th><th>Telefon</th><th>Ort</th><th></th></tr></thead>
     <tbody>${list.map(c => `
       <tr>
-        <td><strong>${c.firstname} ${c.lastname}</strong></td>
-        <td>${c.company || '—'}</td>
-        <td>${c.email || '—'}</td>
-        <td>${c.phone || '—'}</td>
-        <td>${c.zip ? c.zip + ' ' : ''}${c.city || '—'}</td>
-        <td><div class="actions-cell">
+        <td data-label="Name"><strong>${c.firstname} ${c.lastname}</strong></td>
+        <td data-label="Firma">${c.company || '—'}</td>
+        <td data-label="E-Mail">${c.email || '—'}</td>
+        <td data-label="Telefon">${c.phone || '—'}</td>
+        <td data-label="Ort">${c.zip ? c.zip + ' ' : ''}${c.city || '—'}</td>
+        <td class="no-label"><div class="actions-cell">
           <button class="btn btn-ghost btn-sm btn-icon" title="Bearbeiten" onclick="editCustomer('${c.id}')">✏️</button>
           <button class="btn btn-ghost btn-sm btn-icon" title="Löschen" onclick="deleteCustomer('${c.id}')">🗑️</button>
         </div></td>
@@ -1272,14 +1292,14 @@ function renderPositions() {
     return;
   }
   document.getElementById('positions-table-wrap').innerHTML = `
-    <table><thead><tr><th>Bezeichnung</th><th>Beschreibung</th><th>Einheit</th><th>Einzelpreis</th><th></th></tr></thead>
+    <table class="mobile-card-table"><thead><tr><th>Bezeichnung</th><th>Beschreibung</th><th>Einheit</th><th>Einzelpreis</th><th></th></tr></thead>
     <tbody>${list.map(p => `
       <tr>
-        <td><strong>${p.name}</strong></td>
-        <td style="color:var(--text-muted)">${p.description || '—'}</td>
-        <td>${p.unit}</td>
-        <td>${fmtMoney(p.price)}</td>
-        <td><div class="actions-cell">
+        <td data-label="Bezeichnung"><strong>${p.name}</strong></td>
+        <td data-label="Beschreibung" style="color:var(--text-muted)">${p.description || '—'}</td>
+        <td data-label="Einheit">${p.unit}</td>
+        <td data-label="Preis">${fmtMoney(p.price)}</td>
+        <td class="no-label"><div class="actions-cell">
           <button class="btn btn-ghost btn-sm btn-icon" onclick="editPosition('${p.id}')">✏️</button>
           <button class="btn btn-ghost btn-sm btn-icon" onclick="deletePosition('${p.id}')">🗑️</button>
         </div></td>
@@ -1356,21 +1376,21 @@ function renderInvoices(filter = invoiceFilter) {
     return;
   }
   document.getElementById('invoices-table-wrap').innerHTML = `
-    <table><thead><tr><th>Nr.</th><th>Datum</th><th>Fällig</th><th>Kunde</th><th>Betrag</th><th>Status</th><th></th></tr></thead>
+    <table class="mobile-card-table"><thead><tr><th>Nr.</th><th>Datum</th><th>Fällig</th><th>Kunde</th><th>Betrag</th><th>Status</th><th></th></tr></thead>
     <tbody>${list.map(inv => `
       <tr>
-        <td><strong>${inv.number}</strong></td>
-        <td>${fmtDate(inv.date)}</td>
-        <td>${inv.dueDate ? fmtDate(inv.dueDate) : '—'}</td>
-        <td>${getCustomerName(inv.customerId)}</td>
-        <td><strong>${fmtMoney(inv.total)}</strong></td>
-        <td><select class="status-select status-${inv.status}" onchange="changeInvoiceStatus('${inv.id}',this.value)" onclick="event.stopPropagation()">
+        <td data-label="Nr."><strong>${inv.number}</strong></td>
+        <td data-label="Datum">${fmtDate(inv.date)}</td>
+        <td data-label="Fällig">${inv.dueDate ? fmtDate(inv.dueDate) : '—'}</td>
+        <td data-label="Kunde">${getCustomerName(inv.customerId)}</td>
+        <td data-label="Betrag"><strong>${fmtMoney(inv.total)}</strong></td>
+        <td data-label="Status"><select class="status-select status-${inv.status}" onchange="changeInvoiceStatus('${inv.id}',this.value)" onclick="event.stopPropagation()">
           <option value="offen" ${inv.status==='offen'?'selected':''}>Offen</option>
           <option value="bezahlt" ${inv.status==='bezahlt'?'selected':''}>Bezahlt</option>
           <option value="überfällig" ${inv.status==='überfällig'?'selected':''}>Überfällig</option>
           <option value="storniert" ${inv.status==='storniert'?'selected':''}>Storniert</option>
         </select></td>
-        <td><div class="actions-cell">
+        <td class="no-label"><div class="actions-cell">
           <button class="btn btn-ghost btn-sm btn-icon" title="Ansehen" onclick="viewInvoice('${inv.id}')">👁</button>
           <button class="btn btn-ghost btn-sm btn-icon" title="Bearbeiten" onclick="editInvoice('${inv.id}')">✏️</button>
           <button class="btn btn-ghost btn-sm btn-icon" title="Löschen" onclick="deleteInvoice('${inv.id}')">🗑️</button>
