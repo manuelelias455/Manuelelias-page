@@ -1806,8 +1806,88 @@ function viewInvoice(id) {
   currentViewInvoice = inv;
   const s = getSettings();
   const cust = getCustomers().find(c => c.id === inv.customerId) || {};
-  document.getElementById('invoice-view-body').innerHTML = buildInvoiceHTML(inv, cust, s);
-  openModal('modal-view-invoice');
+  const body = document.getElementById('invoice-view-body');
+  if (window.innerWidth < 768) {
+    body.style.padding = '0';
+    body.innerHTML = '<div style="padding:52px 20px;text-align:center;color:#8e8e93;font-size:14px">Vorschau wird geladen…</div>';
+    openModal('modal-view-invoice');
+    _renderInvoicePreview(body, inv, cust, s);
+  } else {
+    body.style.padding = '';
+    body.innerHTML = buildInvoiceHTML(inv, cust, s);
+    openModal('modal-view-invoice');
+  }
+}
+
+async function _renderInvoicePreview(body, inv, cust, s) {
+  try {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  } catch(e) {
+    body.style.padding = '';
+    body.innerHTML = buildInvoiceHTML(inv, cust, s);
+    return;
+  }
+  const wrap = document.createElement('div');
+  wrap.id = '__preview_wrap__';
+  wrap.style.cssText = [
+    'position:fixed','left:-9999px','top:0',
+    'width:794px','min-height:1123px',
+    'background:#fff','box-sizing:border-box',
+    'padding:46px 54px',
+    'display:flex','flex-direction:column',
+    'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    'color:#111','font-size:11.5px','line-height:1.45'
+  ].join(';');
+  wrap.innerHTML = buildInvoiceHTML(inv, cust, s);
+  const tmpStyle = document.createElement('style');
+  tmpStyle.id = '__preview_style__';
+  tmpStyle.textContent = `
+    #__preview_wrap__ { color:#111 }
+    #__preview_wrap__ .inv-header { display:flex;flex-direction:row;justify-content:space-between;margin-bottom:18px }
+    #__preview_wrap__ .inv-company h2 { font-size:15px;font-weight:700;margin:0 0 2px }
+    #__preview_wrap__ .inv-company p { font-size:10.5px;color:#555;line-height:1.55 }
+    #__preview_wrap__ .inv-meta { text-align:right }
+    #__preview_wrap__ .inv-meta h1 { font-size:20px;font-weight:800;color:#374151;margin:0 0 3px;letter-spacing:.02em }
+    #__preview_wrap__ .inv-meta p { font-size:10.5px;color:#555;line-height:1.6 }
+    #__preview_wrap__ .inv-customer { background:#f8f9fa;border-left:3px solid #6b7280;padding:8px 12px;margin-bottom:14px;border-radius:0 5px 5px 0 }
+    #__preview_wrap__ .inv-customer h3 { font-size:8.5px;text-transform:uppercase;color:#888;letter-spacing:.07em;margin:0 0 3px }
+    #__preview_wrap__ .inv-customer p { font-size:11px;line-height:1.6;margin:0 }
+    #__preview_wrap__ .inv-table { width:100%;border-collapse:collapse;margin-bottom:8px }
+    #__preview_wrap__ .inv-table th { background:#1e293b;color:#fff;padding:6px 10px;text-align:left;font-size:9.5px;letter-spacing:.05em }
+    #__preview_wrap__ .inv-table td { padding:5.5px 10px;border-bottom:1px solid #e5e7eb;font-size:10.5px }
+    #__preview_wrap__ .inv-table tr:last-child td { border-bottom:none }
+    #__preview_wrap__ .inv-spacer { flex:1;min-height:0;max-height:24px }
+    #__preview_wrap__ .inv-totals { margin-left:auto;width:230px }
+    #__preview_wrap__ .inv-total-row { display:flex;justify-content:space-between;padding:2.5px 0;font-size:10.5px }
+    #__preview_wrap__ .inv-total-row.grand { font-weight:700;font-size:12.5px;border-top:1.5px solid #1e293b;padding-top:6px;margin-top:3px }
+    #__preview_wrap__ .inv-footer { margin-top:auto;border-top:1px solid #e5e7eb;padding-top:10px;font-size:9.5px;color:#888 }
+  `;
+  document.head.appendChild(tmpStyle);
+  document.body.appendChild(wrap);
+  await Promise.all([...wrap.querySelectorAll('img')].map(img =>
+    new Promise(r => { if (img.complete) r(); else { img.onload = img.onerror = r; } })
+  ));
+  await new Promise(r => setTimeout(r, 120));
+  try {
+    const canvas = await html2canvas(wrap, {
+      scale: 1.5, useCORS: true, allowTaint: true,
+      backgroundColor: '#ffffff', logging: false,
+      width: 794, height: Math.max(1123, wrap.scrollHeight)
+    });
+    if (!document.getElementById('modal-view-invoice').classList.contains('hidden')) {
+      const img = document.createElement('img');
+      img.src = canvas.toDataURL('image/jpeg', 0.88);
+      img.style.cssText = 'width:100%;height:auto;display:block';
+      body.innerHTML = '';
+      body.appendChild(img);
+    }
+  } catch(e) {
+    body.style.padding = '';
+    body.innerHTML = buildInvoiceHTML(inv, cust, s);
+  }
+  document.body.removeChild(wrap);
+  const ps = document.getElementById('__preview_style__');
+  if (ps) ps.remove();
 }
 
 function buildInvoiceHTML(inv, cust, s) {
