@@ -299,6 +299,20 @@
         <div class="card-header"><span class="card-title">Meine Unternehmensdaten</span></div>
         <div class="modal-body">
           <div class="form-grid">
+            <div class="form-group full">
+              <label>Firmenlogo</label>
+              <div id="logo-upload-area" onclick="document.getElementById('s-logo-input').click()"
+                style="border:2px dashed var(--border);border-radius:10px;padding:20px;cursor:pointer;text-align:center;transition:.15s;background:#fafafa"
+                onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+                <img id="s-logo-preview" src="" alt="" style="max-height:80px;max-width:240px;display:none;margin:0 auto 8px;" />
+                <div id="logo-upload-hint" style="color:var(--text-muted);font-size:13px">
+                  <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 6px;display:block;opacity:.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Logo hochladen (PNG, JPG, SVG)
+                </div>
+              </div>
+              <input type="file" id="s-logo-input" accept="image/*" style="display:none" onchange="handleLogoUpload(this)" />
+              <button class="btn btn-ghost btn-sm" id="logo-remove-btn" style="display:none;margin-top:6px;color:var(--danger)" onclick="removeLogo()">Logo entfernen</button>
+            </div>
             <div class="form-group full"><label>Firmenname / Name</label><input id="s-company" placeholder="Muster GmbH" /></div>
             <div class="form-group full"><label>Adresse</label><input id="s-address" placeholder="Musterstraße 1" /></div>
             <div class="form-group"><label>PLZ</label><input id="s-zip" placeholder="12345" /></div>
@@ -1024,9 +1038,10 @@ function buildInvoiceHTML(inv, cust, s) {
       <td style="text-align:right">${fmtMoney(l.price)}</td>
       <td style="text-align:right">${fmtMoney(l.qty * l.price)}</td>
     </tr>`).join('');
+  const logoHtml = s.logo ? `<img src="${s.logo}" alt="Logo" style="max-height:90px;max-width:200px;display:block;margin-bottom:10px;object-fit:contain" />` : '';
   return `
     <div class="inv-header">
-      <div class="inv-company"><h2>${s.company || 'Ihr Unternehmen'}</h2><p>${companyAddr}</p>${s.vat ? '<p style="margin-top:4px;font-size:12px;color:#888">USt-IdNr.: '+s.vat+'</p>' : ''}</div>
+      <div class="inv-company">${logoHtml}<h2>${s.company || 'Ihr Unternehmen'}</h2><p>${companyAddr}</p>${s.vat ? '<p style="margin-top:4px;font-size:12px;color:#888">USt-IdNr.: '+s.vat+'</p>' : ''}</div>
       <div class="inv-meta">
         <h1>RECHNUNG</h1>
         <p><strong>Nr.:</strong> ${inv.number}<br>
@@ -1076,6 +1091,46 @@ function loadSettings() {
   document.getElementById('s-footer').value = s.footer || '';
   document.getElementById('s-vat-rate').value = s.vatRate || 19;
   document.getElementById('s-invoice-start').value = s.nextInvoiceNum || s.invoiceStart || 1001;
+  setLogoPreview(s.logo || '');
+}
+
+function handleLogoUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const s = getSettings();
+    s.logo = e.target.result;
+    setSettings(s);
+    setLogoPreview(s.logo);
+    toast('Logo gespeichert.', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function setLogoPreview(dataUrl) {
+  const preview = document.getElementById('s-logo-preview');
+  const hint = document.getElementById('logo-upload-hint');
+  const removeBtn = document.getElementById('logo-remove-btn');
+  if (dataUrl) {
+    preview.src = dataUrl;
+    preview.style.display = 'block';
+    hint.style.display = 'none';
+    removeBtn.style.display = 'inline-flex';
+  } else {
+    preview.src = '';
+    preview.style.display = 'none';
+    hint.style.display = 'block';
+    removeBtn.style.display = 'none';
+  }
+}
+
+function removeLogo() {
+  const s = getSettings();
+  s.logo = '';
+  setSettings(s);
+  setLogoPreview('');
+  toast('Logo entfernt.');
 }
 
 function saveSettings() {
