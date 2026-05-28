@@ -1970,10 +1970,10 @@ async function printInvoice() {
     'position:fixed', 'left:-9999px', 'top:0',
     'width:794px', 'min-height:1123px',
     'background:#fff', 'box-sizing:border-box',
-    'padding:57px',           // ~15mm margin
+    'padding:46px 54px',
     'display:flex', 'flex-direction:column',
     'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
-    'color:#111', 'font-size:13px', 'line-height:1.5'
+    'color:#111', 'font-size:11.5px', 'line-height:1.45'
   ].join(';');
   wrap.innerHTML = buildInvoiceHTML(currentViewInvoice, cust, s);
 
@@ -1982,25 +1982,25 @@ async function printInvoice() {
   tmpStyle.id = '__pdf_style__';
   tmpStyle.textContent = `
     #__pdf_wrap__ { color:#111 }
-    #__pdf_wrap__ .inv-header { display:flex;justify-content:space-between;margin-bottom:28px }
-    #__pdf_wrap__ .inv-company h2 { font-size:20px;font-weight:700;margin:0 0 2px }
-    #__pdf_wrap__ .inv-company p { font-size:12px;color:#555;line-height:1.6 }
+    #__pdf_wrap__ .inv-header { display:flex;justify-content:space-between;margin-bottom:18px }
+    #__pdf_wrap__ .inv-company h2 { font-size:15px;font-weight:700;margin:0 0 2px }
+    #__pdf_wrap__ .inv-company p { font-size:10.5px;color:#555;line-height:1.55 }
     #__pdf_wrap__ .inv-meta { text-align:right }
-    #__pdf_wrap__ .inv-meta h1 { font-size:26px;font-weight:800;color:#374151;margin:0 0 4px }
-    #__pdf_wrap__ .inv-meta p { font-size:12px;color:#555;line-height:1.7 }
-    #__pdf_wrap__ .inv-customer { background:#f8f9fa;border-left:4px solid #6b7280;padding:12px 16px;margin-bottom:24px;border-radius:0 6px 6px 0 }
-    #__pdf_wrap__ .inv-customer h3 { font-size:10px;text-transform:uppercase;color:#888;letter-spacing:.06em;margin:0 0 5px }
-    #__pdf_wrap__ .inv-customer p { font-size:13px;line-height:1.7;margin:0 }
-    #__pdf_wrap__ .inv-table { width:100%;border-collapse:collapse;margin-bottom:16px }
-    #__pdf_wrap__ .inv-table th { background:#1e293b;color:#fff;padding:9px 13px;text-align:left;font-size:12px }
-    #__pdf_wrap__ .inv-table td { padding:9px 13px;border-bottom:1px solid #e5e7eb;font-size:12px }
+    #__pdf_wrap__ .inv-meta h1 { font-size:20px;font-weight:800;color:#374151;margin:0 0 3px;letter-spacing:.02em }
+    #__pdf_wrap__ .inv-meta p { font-size:10.5px;color:#555;line-height:1.6 }
+    #__pdf_wrap__ .inv-customer { background:#f8f9fa;border-left:3px solid #6b7280;padding:8px 12px;margin-bottom:14px;border-radius:0 5px 5px 0 }
+    #__pdf_wrap__ .inv-customer h3 { font-size:8.5px;text-transform:uppercase;color:#888;letter-spacing:.07em;margin:0 0 3px }
+    #__pdf_wrap__ .inv-customer p { font-size:11px;line-height:1.6;margin:0 }
+    #__pdf_wrap__ .inv-table { width:100%;border-collapse:collapse;margin-bottom:8px }
+    #__pdf_wrap__ .inv-table th { background:#1e293b;color:#fff;padding:6px 10px;text-align:left;font-size:9.5px;letter-spacing:.05em }
+    #__pdf_wrap__ .inv-table td { padding:5.5px 10px;border-bottom:1px solid #e5e7eb;font-size:10.5px }
     #__pdf_wrap__ .inv-table tr:last-child td { border-bottom:none }
-    #__pdf_wrap__ .inv-spacer { flex:1;min-height:0;max-height:80px }
+    #__pdf_wrap__ .inv-spacer { flex:1;min-height:0;max-height:24px }
     #__pdf_wrap__ .inv-bottom { }
-    #__pdf_wrap__ .inv-totals { margin-left:auto;width:260px }
-    #__pdf_wrap__ .inv-total-row { display:flex;justify-content:space-between;padding:5px 0;font-size:13px }
-    #__pdf_wrap__ .inv-total-row.grand { font-weight:700;font-size:15px;border-top:2px solid #1e293b;padding-top:7px;margin-top:3px }
-    #__pdf_wrap__ .inv-footer { margin-top:auto;border-top:1px solid #e5e7eb;padding-top:14px;font-size:11px;color:#888 }
+    #__pdf_wrap__ .inv-totals { margin-left:auto;width:230px }
+    #__pdf_wrap__ .inv-total-row { display:flex;justify-content:space-between;padding:2.5px 0;font-size:10.5px }
+    #__pdf_wrap__ .inv-total-row.grand { font-weight:700;font-size:12.5px;border-top:1.5px solid #1e293b;padding-top:6px;margin-top:3px }
+    #__pdf_wrap__ .inv-footer { margin-top:auto;border-top:1px solid #e5e7eb;padding-top:10px;font-size:9.5px;color:#888 }
   `;
   document.head.appendChild(tmpStyle);
   document.body.appendChild(wrap);
@@ -2027,9 +2027,9 @@ async function printInvoice() {
     const W = 210, H = 297;
     const imgH = (canvas.height / canvas.width) * W;
 
-    if (imgH <= H) {
-      // Single page
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, W, imgH);
+    if (imgH <= H + 2) {
+      // Single page (2mm tolerance for rounding; clips invisible whitespace)
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, W, Math.min(imgH, H));
     } else {
       // Multi-page: slice the canvas into A4-height chunks
       const pxPerPage = Math.round((H / W) * canvas.width);
