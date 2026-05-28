@@ -271,6 +271,25 @@
       .inv-totals { width: 100%; }
       .positions-table th:nth-child(2), .positions-table td:nth-child(2) { display: none; }
 
+      /* Invoice positions — card layout on mobile */
+      #inv-positions-table thead { display: none; }
+      #inv-positions-table, #inv-positions-table tbody,
+      #inv-positions-table tr, #inv-positions-table td { display: block; }
+      #inv-positions-table tbody tr {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
+        padding: 10px 10px 8px; background: #f9fafb; border-radius: 10px;
+        border: 1px solid var(--border); margin-bottom: 8px;
+      }
+      #inv-positions-table td { padding: 2px 3px; border: none; }
+      #inv-positions-table td:nth-child(1) { flex: 1 1 100%; }
+      #inv-positions-table td:nth-child(2) { display: none; }
+      #inv-positions-table td:nth-child(3) { flex: 0 0 54px; }
+      #inv-positions-table td:nth-child(4) { flex: 0 0 76px; }
+      #inv-positions-table td:nth-child(5) { flex: 0 0 72px; }
+      #inv-positions-table td:nth-child(6) { flex: 1; text-align: right; font-weight: 600; font-size: 14px; padding-right: 6px; }
+      #inv-positions-table td:nth-child(7) { flex: 0 0 auto; }
+      #inv-positions-table input, #inv-positions-table select { font-size: 15px !important; }
+
       /* Buttons */
       .btn { border-radius: 10px; }
       .btn-primary { background: #007aff; }
