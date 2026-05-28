@@ -2197,7 +2197,9 @@ function buildInvoiceHTML(inv, cust, s, type = 'invoice') {
       <div class="inv-total-row grand"><span>Gesamtbetrag</span><span>${fmtMoney(inv.total)}</span></div>
     </div>`;
   const notesHtml = inv.notes ? `<div style="margin-top:20px;padding:12px 16px;background:#f9fafb;border-radius:8px;font-size:13px;color:#555">${inv.notes}</div>` : '';
-  const footerHtml = (!isQuote && s.iban) ? `<div class="inv-footer">Bank: ${s.iban}</div>` : '';
+  const footerHtml = isQuote
+    ? `<div class="inv-footer">Ich freue mich auf Ihre Rückmeldung und stehe für Rückfragen gerne zur Verfügung.</div>`
+    : (s.iban ? `<div class="inv-footer">Bank: ${s.iban}</div>` : '');
   const vatLine = s.vat ? `<p style="margin-top:4px;font-size:12px;color:#888">USt-IdNr.: ${s.vat}</p>` : '';
 
   if (tpl === 'modern') {
@@ -2247,7 +2249,7 @@ function buildInvoiceHTML(inv, cust, s, type = 'invoice') {
           <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:15px;border-top:2px solid #111;margin-top:4px"><span>Gesamt</span><span>${fmtMoney(inv.total)}</span></div>
         </div>
         ${notesHtml}
-      </div>${!isQuote&&s.iban?`<div class="inv-footer">Bank: ${s.iban}</div>`:''}`;
+      </div>${isQuote?`<div class="inv-footer">Ich freue mich auf Ihre Rückmeldung und stehe für Rückfragen gerne zur Verfügung.</div>`:(s.iban?`<div class="inv-footer">Bank: ${s.iban}</div>`:'')}`;
 
   }
 
