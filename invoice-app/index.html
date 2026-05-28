@@ -1959,10 +1959,10 @@ function printInvoice() {
     @media print{
       *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
       @page{margin:0;size:A4}
-      body{margin:15mm;padding:0;height:calc(297mm - 30mm);min-height:unset}
-      .inv-spacer{max-height:65mm}
+      body{margin:15mm;padding:0;min-height:0}
+      .inv-spacer{flex:1;min-height:0;max-height:28mm}
       .inv-totals{page-break-inside:avoid}
-      .inv-footer{page-break-inside:avoid}
+      .inv-footer{margin-top:12px;page-break-inside:avoid}
     }
   `;
   const win = window.open('', '_blank', 'width=900,height=700');
