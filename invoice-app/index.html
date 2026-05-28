@@ -934,7 +934,10 @@ function initFirebase() {
 }
 
 function getFirebaseConfig() {
-  try { return JSON.parse(localStorage.getItem('__fbcfg__')) || {}; } catch { return {}; }
+  const stored = (() => { try { return JSON.parse(localStorage.getItem('__fbcfg__')) || {}; } catch { return {}; } })();
+  // Default config (fallback so all devices auto-connect)
+  const defaults = { apiKey: 'AIzaSyAkh_iOnXVqKTG5NtjZksc5DDdaVlrlusI', projectId: 'rechnungsverwaltung-9c32d' };
+  return (stored.apiKey && stored.projectId) ? stored : defaults;
 }
 
 async function saveFirebaseConfig() {
@@ -1058,11 +1061,25 @@ async function doRegister() {
       err.textContent = 'Fehler: ' + e.message; err.style.display='block'; return;
     }
   }
-  users[user] = { hash: await sha256(pass), email };
+  const userData = { hash: await sha256(pass), email };
+  users[user] = userData;
   setUsers(users);
+  // Save to Firestore so other devices can login
+  if (db) {
+    try { await db.collection('__accounts__').doc(user).set(userData); } catch(e) {}
+  }
   sessionStorage.setItem('__session__', user);
   currentUser = user;
   startApp();
+}
+
+async function fetchUserFromCloud(username) {
+  if (!db) return null;
+  try {
+    const doc = await db.collection('__accounts__').doc(username).get();
+    if (doc.exists) return doc.data();
+  } catch(e) {}
+  return null;
 }
 
 async function doLogin() {
@@ -1071,7 +1088,21 @@ async function doLogin() {
   const err = document.getElementById('login-error');
   err.style.display = 'none';
   if (!user || !pass) { err.textContent = 'Bitte alle Felder ausfüllen.'; err.style.display='block'; return; }
-  const userData = getUserData(user);
+  let userData = getUserData(user);
+  // Not found locally → try fetching from Firestore
+  if (!userData) {
+    err.textContent = 'Suche in Cloud…';
+    err.style.color = '#6b7280';
+    err.style.display = 'block';
+    userData = await fetchUserFromCloud(user);
+    if (userData) {
+      const users = getUsers();
+      users[user] = userData;
+      setUsers(users);
+    }
+    err.style.display = 'none';
+    err.style.color = '#ef4444';
+  }
   if (!userData) { err.textContent = 'Benutzername nicht gefunden.'; err.style.display='block'; return; }
   const hash = await sha256(pass);
   if (userData.hash !== hash) { err.textContent = 'Passwort falsch.'; err.style.display='block'; return; }
