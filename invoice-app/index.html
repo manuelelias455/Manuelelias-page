@@ -321,11 +321,20 @@
 
     /* ── PRINT ── */
     @media print {
-      body * { visibility: hidden; }
-      #print-area, #print-area * { visibility: visible; }
-      #print-area { position: fixed; inset: 0; padding: 30px; background: #fff; font-size: 13px; }
+      body > *:not(#print-area) { display: none !important; }
+      #print-area { display: block !important; position: static !important; padding: 30px; background: #fff; font-size: 13px; box-shadow: none; }
+      #print-area #print-toolbar { display: none !important; }
     }
-    #print-area { display: none; }
+    #print-area {
+      display: none; position: fixed; inset: 0; z-index: 10000;
+      background: #fff; overflow-y: auto;
+    }
+    #print-toolbar {
+      position: sticky; top: 0; background: #1e293b; padding: 12px 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; z-index: 1;
+    }
+    #print-toolbar span { color: #fff; font-size: 14px; font-weight: 500; }
+    #print-content { padding: 30px; max-width: 800px; margin: 0 auto; }
 
     /* ── Invoice print layout ── */
     .inv-header { display: flex; justify-content: space-between; margin-bottom: 32px; }
@@ -795,7 +804,19 @@
 </div>
 
 <!-- Print Area (hidden, shown only when printing) -->
-<div id="print-area"></div>
+<div id="print-area">
+  <div id="print-toolbar">
+    <span>Vorschau</span>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-primary btn-sm" onclick="doPrint()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Drucken / Als PDF speichern
+      </button>
+      <button class="btn btn-secondary btn-sm" onclick="closePrintArea()">✕ Schließen</button>
+    </div>
+  </div>
+  <div id="print-content"></div>
+</div>
 
 <!-- ====== LOGIN SCREEN ====== -->
 <div id="auth-screen" style="position:fixed;inset:0;background:#f0f2f5;z-index:9000;display:flex;align-items:center;justify-content:center;">
@@ -1888,11 +1909,19 @@ function printInvoice() {
   if (!currentViewInvoice) return;
   const s = getSettings();
   const cust = getCustomers().find(c => c.id === currentViewInvoice.customerId) || {};
-  const pa = document.getElementById('print-area');
-  pa.innerHTML = buildInvoiceHTML(currentViewInvoice, cust, s);
-  pa.style.display = 'block';
-  window.onafterprint = () => { pa.style.display = 'none'; };
-  setTimeout(() => { window.print(); }, 200);
+  document.getElementById('print-content').innerHTML = buildInvoiceHTML(currentViewInvoice, cust, s);
+  document.getElementById('print-area').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function doPrint() {
+  window.onafterprint = closePrintArea;
+  window.print();
+}
+
+function closePrintArea() {
+  document.getElementById('print-area').style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 // ═══════════════════════════════════════════════════
