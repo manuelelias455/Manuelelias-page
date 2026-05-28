@@ -322,7 +322,7 @@
             <div class="form-group"><label>USt-IdNr.</label><input id="s-vat" placeholder="DE123456789" /></div>
             <div class="form-group"><label>IBAN</label><input id="s-iban" placeholder="DE00 0000 …" /></div>
             <div class="form-group full"><label>Fußzeile / Bankdaten (Rechnungstext)</label><textarea id="s-footer" rows="3" placeholder="Zahlbar innerhalb von 14 Tagen ohne Abzug."></textarea></div>
-            <div class="form-group"><label>Standard MwSt. (%)</label><input id="s-vat-rate" type="number" value="19" /></div>
+            <div class="form-group"><label>Standard MwSt. (%)</label><input id="s-vat-rate" type="number" value="0" /></div>
             <div class="form-group"><label>Nächste Rechnungsnr.</label><input id="s-invoice-start" type="number" value="1001" /></div>
           </div>
           <div style="margin-top:20px;display:flex;gap:10px;">
@@ -536,7 +536,7 @@ function getPositions() { return DB.get('positions'); }
 function setPositions(d) { DB.set('positions', d); }
 function getInvoices() { return DB.get('invoices'); }
 function setInvoices(d) { DB.set('invoices', d); }
-function getSettings() { return DB.getObj('settings', { company:'', address:'', zip:'', city:'', phone:'', email:'', vat:'', iban:'', footer:'Zahlbar innerhalb von 14 Tagen ohne Abzug.', vatRate:19, invoiceStart:1001, nextInvoiceNum:1001 }); }
+function getSettings() { return DB.getObj('settings', { company:'', address:'', zip:'', city:'', phone:'', email:'', vat:'', iban:'', footer:'Zahlbar innerhalb von 14 Tagen ohne Abzug.', vatRate:0, invoiceStart:1001, nextInvoiceNum:1001 }); }
 function setSettings(d) { DB.set('settings', d); }
 
 // ═══════════════════════════════════════════════════
@@ -858,7 +858,7 @@ function openNewInvoice() {
   document.getElementById('inv-due').value = due;
   document.getElementById('inv-status').value = 'offen';
   document.getElementById('inv-notes').value = s.footer || '';
-  document.getElementById('inv-vat-pct').textContent = s.vatRate || 19;
+  document.getElementById('inv-vat-pct').textContent = s.vatRate !== undefined ? s.vatRate : 0;
   populateCustomerSelect();
   invoiceLines = [];
   renderInvoiceLines();
@@ -876,7 +876,7 @@ function editInvoice(id) {
   document.getElementById('inv-status').value = inv.status;
   document.getElementById('inv-notes').value = inv.notes || '';
   const s = getSettings();
-  document.getElementById('inv-vat-pct').textContent = s.vatRate || 19;
+  document.getElementById('inv-vat-pct').textContent = s.vatRate !== undefined ? s.vatRate : 0;
   populateCustomerSelect(inv.customerId);
   invoiceLines = inv.lines ? JSON.parse(JSON.stringify(inv.lines)) : [];
   renderInvoiceLines();
@@ -933,7 +933,7 @@ function renderLineTotal(id, l) {
 
 function calcTotals() {
   const net = invoiceLines.reduce((s, l) => s + l.qty * l.price, 0);
-  const vatRate = parseFloat(document.getElementById('inv-vat-pct').textContent) || 19;
+  const vatRate = parseFloat(document.getElementById('inv-vat-pct').textContent) || 0;
   const vat = net * vatRate / 100;
   document.getElementById('inv-net').textContent = fmtMoney(net);
   document.getElementById('inv-vat-amt').textContent = fmtMoney(vat);
@@ -970,7 +970,7 @@ function saveInvoice() {
   if (invoiceLines.length === 0) { toast('Bitte mindestens eine Position hinzufügen.', 'error'); return; }
 
   const net = invoiceLines.reduce((s, l) => s + l.qty * l.price, 0);
-  const vatRate = parseFloat(document.getElementById('inv-vat-pct').textContent) || 19;
+  const vatRate = parseFloat(document.getElementById('inv-vat-pct').textContent) || 0;
   const vat = net * vatRate / 100;
 
   const inv = {
@@ -1057,7 +1057,7 @@ function buildInvoiceHTML(inv, cust, s) {
     </table>
     <div class="inv-totals">
       <div class="inv-total-row"><span>Nettobetrag</span><span>${fmtMoney(inv.net)}</span></div>
-      <div class="inv-total-row"><span>MwSt. (${inv.vatRate || 19}%)</span><span>${fmtMoney(inv.vat)}</span></div>
+      <div class="inv-total-row"><span>MwSt. (${inv.vatRate !== undefined ? inv.vatRate : 0}%)</span><span>${fmtMoney(inv.vat)}</span></div>
       <div class="inv-total-row grand"><span>Gesamtbetrag</span><span>${fmtMoney(inv.total)}</span></div>
     </div>
     ${inv.notes ? `<div style="margin-top:20px;padding:12px 16px;background:#f9fafb;border-radius:8px;font-size:13px;color:#555">${inv.notes}</div>` : ''}
@@ -1089,7 +1089,7 @@ function loadSettings() {
   document.getElementById('s-vat').value = s.vat || '';
   document.getElementById('s-iban').value = s.iban || '';
   document.getElementById('s-footer').value = s.footer || '';
-  document.getElementById('s-vat-rate').value = s.vatRate || 19;
+  document.getElementById('s-vat-rate').value = s.vatRate !== undefined ? s.vatRate : 0;
   document.getElementById('s-invoice-start').value = s.nextInvoiceNum || s.invoiceStart || 1001;
   setLogoPreview(s.logo || '');
 }
@@ -1144,7 +1144,7 @@ function saveSettings() {
   s.vat = document.getElementById('s-vat').value.trim();
   s.iban = document.getElementById('s-iban').value.trim();
   s.footer = document.getElementById('s-footer').value.trim();
-  s.vatRate = parseFloat(document.getElementById('s-vat-rate').value) || 19;
+  s.vatRate = parseFloat(document.getElementById('s-vat-rate').value) || 0;
   s.nextInvoiceNum = parseInt(document.getElementById('s-invoice-start').value) || 1001;
   setSettings(s);
   toast('Einstellungen gespeichert.', 'success');
