@@ -714,6 +714,33 @@
       </div>
       <p style="text-align:center;margin-top:20px;font-size:13px;color:#6b7280;">
         Noch kein Konto? <a href="#" onclick="showRegister();return false;" style="color:#2563eb;font-weight:500;">Registrieren</a>
+        &nbsp;·&nbsp; <a href="#" onclick="showForgot();return false;" style="color:#6b7280;">Passwort vergessen?</a>
+      </p>
+    </div>
+
+    <!-- Forgot Password Form -->
+    <div id="form-forgot" style="display:none;">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="form-group">
+          <label>Benutzername</label>
+          <input id="forgot-user" placeholder="benutzername" autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label>Neues Passwort</label>
+          <div style="position:relative;">
+            <input id="forgot-pass" type="password" placeholder="min. 6 Zeichen" style="width:100%;padding-right:40px;" />
+            <button onclick="togglePw('forgot-pass')" class="btn btn-ghost btn-icon" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);color:#9ca3af;">👁</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Passwort wiederholen</label>
+          <input id="forgot-pass2" type="password" placeholder="••••••••" />
+        </div>
+        <div id="forgot-error" style="color:#ef4444;font-size:13px;display:none;"></div>
+        <button class="btn btn-primary" onclick="doResetPassword()" style="width:100%;justify-content:center;margin-top:4px;">Passwort zurücksetzen</button>
+      </div>
+      <p style="text-align:center;margin-top:20px;font-size:13px;color:#6b7280;">
+        Zurück zur <a href="#" onclick="showLogin();return false;" style="color:#2563eb;font-weight:500;">Anmeldung</a>
       </p>
     </div>
 
@@ -931,13 +958,41 @@ function logout() {
 function showLogin() {
   document.getElementById('form-login').style.display = 'block';
   document.getElementById('form-register').style.display = 'none';
+  document.getElementById('form-forgot').style.display = 'none';
   document.getElementById('auth-subtitle').textContent = 'Melden Sie sich an um fortzufahren.';
 }
 
 function showRegister() {
   document.getElementById('form-login').style.display = 'none';
+  document.getElementById('form-register').style.display = 'none';
+  document.getElementById('form-forgot').style.display = 'none';
   document.getElementById('form-register').style.display = 'block';
   document.getElementById('auth-subtitle').textContent = 'Neues Konto erstellen.';
+}
+
+function showForgot() {
+  document.getElementById('form-login').style.display = 'none';
+  document.getElementById('form-register').style.display = 'none';
+  document.getElementById('form-forgot').style.display = 'block';
+  document.getElementById('auth-subtitle').textContent = 'Passwort zurücksetzen.';
+}
+
+async function doResetPassword() {
+  const user = document.getElementById('forgot-user').value.trim().toLowerCase();
+  const pass = document.getElementById('forgot-pass').value;
+  const pass2 = document.getElementById('forgot-pass2').value;
+  const err = document.getElementById('forgot-error');
+  err.style.display = 'none';
+  const users = getUsers();
+  if (!user || !users[user]) { err.textContent = 'Benutzername nicht gefunden.'; err.style.display = 'block'; return; }
+  if (pass.length < 6) { err.textContent = 'Passwort muss mind. 6 Zeichen haben.'; err.style.display = 'block'; return; }
+  if (pass !== pass2) { err.textContent = 'Passwörter stimmen nicht überein.'; err.style.display = 'block'; return; }
+  users[user] = await sha256(pass);
+  localStorage.setItem('__users__', JSON.stringify(users));
+  showLogin();
+  document.getElementById('login-user').value = user;
+  document.getElementById('login-error').style.display = 'none';
+  alert('Passwort wurde zurückgesetzt. Du kannst dich jetzt anmelden.');
 }
 
 function togglePw(id) {
