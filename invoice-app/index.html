@@ -1056,7 +1056,24 @@ async function doRegister() {
     try {
       await auth.createUserWithEmailAndPassword(email, pass);
     } catch(e) {
-      if (e.code === 'auth/email-already-in-use') { err.textContent = 'E-Mail bereits registriert.'; err.style.display='block'; return; }
+      if (e.code === 'auth/email-already-in-use') {
+        // Account exists in Firebase Auth → try to sign in and recover
+        try {
+          await auth.signInWithEmailAndPassword(email, pass);
+          // Sign-in worked → recover account locally + Firestore
+          const userData = { hash: await sha256(pass), email };
+          users[user] = userData;
+          setUsers(users);
+          if (db) { try { await db.collection('__accounts__').doc(user).set(userData); } catch(e2) {} }
+          sessionStorage.setItem('__session__', user);
+          currentUser = user;
+          toast('Konto wiederhergestellt!', 'success');
+          startApp();
+          return;
+        } catch(e2) {
+          err.textContent = 'E-Mail bereits registriert, aber Passwort falsch.'; err.style.display='block'; return;
+        }
+      }
       if (e.code === 'auth/invalid-email') { err.textContent = 'Ungültige E-Mail-Adresse.'; err.style.display='block'; return; }
       err.textContent = 'Fehler: ' + e.message; err.style.display='block'; return;
     }
