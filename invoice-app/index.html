@@ -1051,7 +1051,20 @@ async function doRegister() {
   if (pass.length < 6) { err.textContent = 'Passwort muss mindestens 6 Zeichen haben.'; err.style.display='block'; return; }
   if (pass !== pass2) { err.textContent = 'Passwörter stimmen nicht überein.'; err.style.display='block'; return; }
   const users = getUsers();
-  if (users[user]) { err.textContent = 'Benutzername bereits vergeben.'; err.style.display='block'; return; }
+  // If username exists locally, try to login instead of blocking
+  if (users[user]) {
+    const hash = await sha256(pass);
+    const existing = getUserData(user);
+    if (existing && existing.hash === hash) {
+      if (auth && existing.email) { try { await auth.signInWithEmailAndPassword(existing.email, pass); } catch(e) {} }
+      sessionStorage.setItem('__session__', user);
+      currentUser = user;
+      startApp();
+      return;
+    } else {
+      err.textContent = 'Benutzername bereits vergeben. Bitte melde dich an.'; err.style.display='block'; return;
+    }
+  }
   if (auth) {
     try {
       await auth.createUserWithEmailAndPassword(email, pass);
