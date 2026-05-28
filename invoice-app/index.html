@@ -171,6 +171,42 @@
     .search-bar input { padding-left: 36px; min-width: 220px; }
     .search-bar svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
 
+    /* ── Mobile ── */
+    #mobile-nav { display: none; }
+    @media (max-width: 768px) {
+      #sidebar { display: none !important; }
+      #main { margin-left: 0 !important; }
+      #mobile-nav {
+        display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+        background: #1e293b; border-top: 1px solid #334155;
+        justify-content: space-around; align-items: stretch; height: 60px;
+      }
+      #mobile-nav .mn-item {
+        flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: #94a3b8; font-size: 10px; gap: 3px; cursor: pointer; transition: color .15s; padding: 4px 0;
+        border: none; background: none;
+      }
+      #mobile-nav .mn-item.active { color: #60a5fa; }
+      #mobile-nav .mn-item svg { flex-shrink: 0; }
+      .content { padding: 16px; padding-bottom: 76px !important; }
+      .topbar { padding: 0 16px; }
+      .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 10px; }
+      .form-grid { grid-template-columns: 1fr !important; }
+      .form-group.full { grid-column: 1 !important; }
+      .modal { max-width: 100% !important; margin: 0; border-radius: 14px 14px 0 0 !important; max-height: 92vh; }
+      .modal-lg { max-width: 100% !important; }
+      .modal-overlay { align-items: flex-end !important; padding: 0 !important; }
+      table { font-size: 12px; }
+      thead th, tbody td { padding: 8px 10px; }
+      .card { border-radius: 10px; }
+      #page-dashboard > div:last-child { grid-template-columns: 1fr !important; }
+      .template-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .inv-header { flex-direction: column; gap: 12px; }
+      .inv-meta { text-align: left; }
+      .inv-totals { width: 100%; }
+      .positions-table th:nth-child(2), .positions-table td:nth-child(2) { display: none; }
+    }
+
     /* ── PRINT ── */
     @media print {
       body * { visibility: hidden; }
@@ -198,6 +234,8 @@
     .inv-total-row.grand { font-weight: 700; font-size: 16px; border-top: 2px solid #1e293b; padding-top: 8px; margin-top: 4px; }
     .inv-footer { margin-top: 40px; border-top: 1px solid #e5e7eb; padding-top: 16px; font-size: 12px; color: #888; }
   </style>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -435,6 +473,30 @@
           </div>
           <div style="margin-top:20px;display:flex;gap:10px;">
             <button class="btn btn-primary" onclick="saveSettings()">Speichern</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cloud Sync Card -->
+      <div class="card" style="max-width:600px;margin-top:20px;">
+        <div class="card-header">
+          <span class="card-title">☁️ Cloud-Sync (iPhone ↔ Laptop)</span>
+          <span id="sync-status-badge" class="badge badge-default">Nicht verbunden</span>
+        </div>
+        <div class="modal-body">
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">
+            Mit Firebase (kostenlos) werden Ihre Daten automatisch zwischen allen Geräten synchronisiert.
+            <a href="https://console.firebase.google.com/" target="_blank" style="color:var(--primary)">→ Firebase-Projekt erstellen</a>
+            (Firestore Database aktivieren, Testmodus wählen)
+          </p>
+          <div class="form-grid">
+            <div class="form-group full"><label>Firebase API Key</label><input id="fb-apikey" placeholder="AIzaSy…" /></div>
+            <div class="form-group full"><label>Firebase Project ID</label><input id="fb-projectid" placeholder="mein-projekt-12345" /></div>
+          </div>
+          <div id="sync-error" style="color:var(--danger);font-size:13px;margin-top:8px;display:none;"></div>
+          <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="saveFirebaseConfig()">Verbinden & Sync aktivieren</button>
+            <button class="btn btn-secondary" onclick="clearFirebaseConfig()">Sync deaktivieren</button>
           </div>
         </div>
       </div>
@@ -683,6 +745,30 @@
   </div>
 </div>
 
+<!-- Mobile Nav -->
+<nav id="mobile-nav">
+  <button class="mn-item active" data-page="dashboard">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Start
+  </button>
+  <button class="mn-item" data-page="invoices">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Rechnungen
+  </button>
+  <button class="mn-item" data-page="customers">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    Kunden
+  </button>
+  <button class="mn-item" data-page="positions">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+    Positionen
+  </button>
+  <button class="mn-item" data-page="settings">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Einstellungen
+  </button>
+</nav>
+
 <!-- Toast Container -->
 <div id="toast-container"></div>
 
@@ -690,6 +776,105 @@
 // ═══════════════════════════════════════════════════
 //  DATA LAYER
 // ═══════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════
+//  FIREBASE SYNC
+// ═══════════════════════════════════════════════════
+
+let db = null;
+
+function initFirebase() {
+  const cfg = getFirebaseConfig();
+  if (!cfg.apiKey || !cfg.projectId) return;
+  try {
+    if (!firebase.apps.length) {
+      firebase.initializeApp({ apiKey: cfg.apiKey, projectId: cfg.projectId });
+    }
+    db = firebase.firestore();
+    updateSyncBadge(true);
+  } catch(e) { db = null; }
+}
+
+function getFirebaseConfig() {
+  try { return JSON.parse(localStorage.getItem('__fbcfg__')) || {}; } catch { return {}; }
+}
+
+async function saveFirebaseConfig() {
+  const apiKey = document.getElementById('fb-apikey').value.trim();
+  const projectId = document.getElementById('fb-projectid').value.trim();
+  const errEl = document.getElementById('sync-error');
+  errEl.style.display = 'none';
+  if (!apiKey || !projectId) { errEl.textContent = 'Bitte beide Felder ausfüllen.'; errEl.style.display='block'; return; }
+  localStorage.setItem('__fbcfg__', JSON.stringify({ apiKey, projectId }));
+  try {
+    if (firebase.apps.length) firebase.apps.forEach(a => a.delete());
+    firebase.initializeApp({ apiKey, projectId });
+    db = firebase.firestore();
+    await db.collection('_test').doc('ping').set({ t: Date.now() });
+    updateSyncBadge(true);
+    toast('Cloud-Sync aktiviert! Daten werden jetzt synchronisiert.', 'success');
+    await pushAllToCloud();
+  } catch(e) {
+    errEl.textContent = 'Verbindung fehlgeschlagen: ' + e.message;
+    errEl.style.display = 'block';
+    db = null;
+    updateSyncBadge(false);
+  }
+}
+
+function clearFirebaseConfig() {
+  localStorage.removeItem('__fbcfg__');
+  db = null;
+  updateSyncBadge(false);
+  toast('Cloud-Sync deaktiviert.');
+}
+
+function updateSyncBadge(connected) {
+  const b = document.getElementById('sync-status-badge');
+  if (!b) return;
+  b.textContent = connected ? 'Verbunden ✓' : 'Nicht verbunden';
+  b.className = 'badge ' + (connected ? 'badge-success' : 'badge-default');
+  const apiEl = document.getElementById('fb-apikey');
+  const pidEl = document.getElementById('fb-projectid');
+  const cfg = getFirebaseConfig();
+  if (apiEl && cfg.apiKey) apiEl.value = cfg.apiKey;
+  if (pidEl && cfg.projectId) pidEl.value = cfg.projectId;
+}
+
+async function cloudSet(collection, data) {
+  if (!db || !currentUser) return;
+  try { await db.collection('users').doc(currentUser).collection(collection).doc('data').set({ v: JSON.stringify(data) }); } catch(e) {}
+}
+
+async function cloudGet(collection) {
+  if (!db || !currentUser) return null;
+  try {
+    const doc = await db.collection('users').doc(currentUser).collection(collection).doc('data').get();
+    if (doc.exists) return JSON.parse(doc.data().v);
+  } catch(e) {}
+  return null;
+}
+
+async function pushAllToCloud() {
+  if (!db || !currentUser) return;
+  await cloudSet('customers', getCustomers());
+  await cloudSet('invoices', getInvoices());
+  await cloudSet('positions', getPositions());
+  await cloudSet('settings', getSettings());
+  toast('Alle Daten in die Cloud synchronisiert.', 'success');
+}
+
+async function pullFromCloud() {
+  if (!db || !currentUser) return false;
+  const [c, i, p, s] = await Promise.all([
+    cloudGet('customers'), cloudGet('invoices'), cloudGet('positions'), cloudGet('settings')
+  ]);
+  if (c) setCustomers(c);
+  if (i) setInvoices(i);
+  if (p) setPositions(p);
+  if (s) setSettings(s);
+  return !!(c || i || p || s);
+}
 
 // ═══════════════════════════════════════════════════
 //  AUTH
@@ -760,11 +945,18 @@ function togglePw(id) {
   el.type = el.type === 'password' ? 'text' : 'password';
 }
 
-function startApp() {
+async function startApp() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('sidebar-user').textContent = '👤 ' + currentUser;
-  seedDemoData();
+  initFirebase();
+  if (db) {
+    const pulled = await pullFromCloud();
+    if (!pulled) seedDemoData();
+  } else {
+    seedDemoData();
+  }
   navigate('dashboard');
+  if (db) updateSyncBadge(true);
 }
 
 // ═══════════════════════════════════════════════════
@@ -774,7 +966,10 @@ function startApp() {
 const DB = {
   key(k) { return currentUser ? `${currentUser}__${k}` : k; },
   get(key) { try { return JSON.parse(localStorage.getItem(this.key(key))) || []; } catch { return []; } },
-  set(key, val) { localStorage.setItem(this.key(key), JSON.stringify(val)); },
+  set(key, val) {
+    localStorage.setItem(this.key(key), JSON.stringify(val));
+    if (db && currentUser) cloudSet(key, val).catch(()=>{});
+  },
   getObj(key, def = {}) { try { return JSON.parse(localStorage.getItem(this.key(key))) || def; } catch { return def; } },
 };
 
@@ -805,12 +1000,18 @@ function navigate(page) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
   document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+  document.querySelectorAll('#mobile-nav .mn-item').forEach(n => n.classList.remove('active'));
+  const mnActive = document.querySelector(`#mobile-nav .mn-item[data-page="${page}"]`);
+  if (mnActive) mnActive.classList.add('active');
   document.getElementById('page-title').textContent = pageTitles[page] || page;
   document.getElementById('topbar-actions').innerHTML = (topbarButtons[page] ? topbarButtons[page]() : '');
   renderPage(page);
 }
 
 document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => navigate(el.dataset.page));
+});
+document.querySelectorAll('#mobile-nav .mn-item').forEach(el => {
   el.addEventListener('click', () => navigate(el.dataset.page));
 });
 
@@ -1568,6 +1769,7 @@ if (_sess && getUsers()[_sess]) {
   currentUser = _sess;
   startApp();
 }
+initFirebase();
 // else auth-screen stays visible
 </script>
 </body>
