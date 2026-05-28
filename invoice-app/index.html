@@ -268,7 +268,7 @@
       .template-grid { grid-template-columns: repeat(2, 1fr) !important; }
       .inv-header { flex-direction: column; gap: 12px; }
       .inv-meta { text-align: left; }
-      .inv-totals { width: 100%; }
+      .inv-totals { width: 100%; flex-shrink: unset; }
       .positions-table th:nth-child(2), .positions-table td:nth-child(2) { display: none; }
 
       /* Invoice positions — card layout on mobile */
@@ -380,7 +380,8 @@
     .inv-table th { background: #1e293b; color: #fff; padding: 10px 14px; text-align: left; font-size: 13px; }
     .inv-table td { padding: 10px 14px; border-bottom: 1px solid #e5e7eb; font-size: 13px; }
     .inv-table tr:last-child td { border-bottom: none; }
-    .inv-totals { margin-left: auto; width: 280px; }
+    .inv-totals { width: 280px; flex-shrink: 0; }
+    .inv-bottom { display: flex; align-items: flex-start; gap: 20px; }
     .inv-total-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 14px; }
     .inv-total-row.grand { font-weight: 700; font-size: 16px; border-top: 2px solid #1e293b; padding-top: 8px; margin-top: 4px; }
     .inv-footer { margin-top: 40px; border-top: 1px solid #e5e7eb; padding-top: 16px; font-size: 12px; color: #888; }
@@ -2159,7 +2160,8 @@ async function _renderInvoicePreview(body, inv, cust, s, type = 'invoice') {
     #__preview_wrap__ .inv-table td { padding:5.5px 10px;border-bottom:1px solid #e5e7eb;font-size:10.5px }
     #__preview_wrap__ .inv-table tr:last-child td { border-bottom:none }
     #__preview_wrap__ .inv-spacer { flex:1;min-height:0;max-height:24px }
-    #__preview_wrap__ .inv-totals { margin-left:auto;width:230px }
+    #__preview_wrap__ .inv-bottom { display:flex;align-items:flex-start;gap:14px }
+    #__preview_wrap__ .inv-totals { width:230px;flex-shrink:0 }
     #__preview_wrap__ .inv-total-row { display:flex;justify-content:space-between;padding:2.5px 0;font-size:10.5px }
     #__preview_wrap__ .inv-total-row.grand { font-weight:700;font-size:12.5px;border-top:1.5px solid #1e293b;padding-top:6px;margin-top:3px }
     #__preview_wrap__ .inv-footer { margin-top:auto;border-top:1px solid #e5e7eb;padding-top:10px;font-size:9.5px;color:#888 }
@@ -2216,7 +2218,7 @@ function buildInvoiceHTML(inv, cust, s, type = 'invoice') {
       <div class="inv-total-row grand"><span>Gesamtbetrag</span><span>${fmtMoney(inv.total)}</span></div>
     </div>`;
   const noteText = inv.notes || (isQuote ? 'Ich freue mich auf Ihre Rückmeldung und stehe für Rückfragen gerne zur Verfügung.' : '');
-  const notesHtml = noteText ? `<div style="margin-top:20px;padding:12px 16px;background:#f9fafb;border-radius:8px;font-size:13px;color:#555">${noteText}</div>` : '';
+  const notesHtml = noteText ? `<div style="flex:1;padding:12px 16px;background:#f9fafb;border-radius:8px;font-size:13px;color:#555">${noteText}</div>` : '';
   const footerHtml = (!isQuote && s.iban) ? `<div class="inv-footer">Bank: ${s.iban}</div>` : '';
   const vatLine = s.vat ? `<p style="margin-top:4px;font-size:12px;color:#888">USt-IdNr.: ${s.vat}</p>` : '';
 
@@ -2242,7 +2244,7 @@ function buildInvoiceHTML(inv, cust, s, type = 'invoice') {
         <tbody>${rows}</tbody>
       </table>
       <div class="inv-spacer"></div>
-      <div class="inv-bottom">${totalsHtml}${notesHtml}</div>${footerHtml}`;
+      <div class="inv-bottom">${notesHtml}${totalsHtml}</div>${footerHtml}`;
   }
 
   if (tpl === 'minimal') {
@@ -2261,13 +2263,13 @@ function buildInvoiceHTML(inv, cust, s, type = 'invoice') {
       </table>
       <div class="inv-spacer"></div>
       <div class="inv-bottom">
-        <div style="margin-left:auto;width:260px;font-size:13px">
+        ${notesHtml}
+        <div style="width:260px;flex-shrink:0;font-size:13px">
           <div style="display:flex;justify-content:space-between;padding:4px 0;color:#555"><span>Nettobetrag</span><span>${fmtMoney(inv.net)}</span></div>
           <div style="display:flex;justify-content:space-between;padding:4px 0;color:#555"><span>MwSt. (${inv.vatRate!==undefined?inv.vatRate:0}%)</span><span>${fmtMoney(inv.vat)}</span></div>
           <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:15px;border-top:2px solid #111;margin-top:4px"><span>Gesamt</span><span>${fmtMoney(inv.total)}</span></div>
         </div>
-        ${notesHtml}
-      </div>${isQuote?`<div class="inv-footer">Ich freue mich auf Ihre Rückmeldung und stehe für Rückfragen gerne zur Verfügung.</div>`:(s.iban?`<div class="inv-footer">Bank: ${s.iban}</div>`:'')}`;
+      </div>${footerHtml}`;
 
   }
 
@@ -2297,7 +2299,7 @@ function buildInvoiceHTML(inv, cust, s, type = 'invoice') {
         <tbody>${rows}</tbody>
       </table>
       <div class="inv-spacer"></div>
-      <div class="inv-bottom">${totalsHtml}${notesHtml}</div>${footerHtml}`;
+      <div class="inv-bottom">${notesHtml}${totalsHtml}</div>${footerHtml}`;
   }
 
   // Default: klassisch
@@ -2385,8 +2387,8 @@ async function printInvoice() {
     #__pdf_wrap__ .inv-table td { padding:5.5px 10px;border-bottom:1px solid #e5e7eb;font-size:10.5px }
     #__pdf_wrap__ .inv-table tr:last-child td { border-bottom:none }
     #__pdf_wrap__ .inv-spacer { flex:1;min-height:0;max-height:24px }
-    #__pdf_wrap__ .inv-bottom { }
-    #__pdf_wrap__ .inv-totals { margin-left:auto;width:230px }
+    #__pdf_wrap__ .inv-bottom { display:flex;align-items:flex-start;gap:14px }
+    #__pdf_wrap__ .inv-totals { width:230px;flex-shrink:0 }
     #__pdf_wrap__ .inv-total-row { display:flex;justify-content:space-between;padding:2.5px 0;font-size:10.5px }
     #__pdf_wrap__ .inv-total-row.grand { font-weight:700;font-size:12.5px;border-top:1.5px solid #1e293b;padding-top:6px;margin-top:3px }
     #__pdf_wrap__ .inv-footer { margin-top:auto;border-top:1px solid #e5e7eb;padding-top:10px;font-size:9.5px;color:#888 }
