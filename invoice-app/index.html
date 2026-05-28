@@ -1909,19 +1909,16 @@ function printInvoice() {
   if (!currentViewInvoice) return;
   const s = getSettings();
   const cust = getCustomers().find(c => c.id === currentViewInvoice.customerId) || {};
-  document.getElementById('print-content').innerHTML = buildInvoiceHTML(currentViewInvoice, cust, s);
-  document.getElementById('print-area').style.display = 'block';
-  document.body.style.overflow = 'hidden';
-}
-
-function doPrint() {
-  window.onafterprint = closePrintArea;
-  window.print();
-}
-
-function closePrintArea() {
-  document.getElementById('print-area').style.display = 'none';
-  document.body.style.overflow = '';
+  const body = buildInvoiceHTML(currentViewInvoice, cust, s);
+  const css = Array.from(document.styleSheets).map(sheet => {
+    try { return Array.from(sheet.cssRules).map(r => r.cssText).join('\n'); } catch { return ''; }
+  }).join('\n');
+  const win = window.open('', '_blank', 'width=900,height=700');
+  if (!win) { toast('Bitte Pop-ups für diese Seite erlauben.', 'error'); return; }
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rechnung ${currentViewInvoice.number}</title><style>${css}</style></head><body style="background:#fff;padding:30px;">${body}</body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(() => { win.print(); }, 400);
 }
 
 // ═══════════════════════════════════════════════════
