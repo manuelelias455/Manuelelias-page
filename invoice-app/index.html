@@ -1854,7 +1854,7 @@ function buildInvoiceHTML(inv, cust, s) {
         <tbody>${rows}</tbody>
       </table>
       <div class="inv-spacer"></div>
-      ${totalsHtml}${notesHtml}${footerHtml}`;
+      <div class="inv-bottom">${totalsHtml}${notesHtml}${footerHtml}</div>`;
   }
 
   if (tpl === 'minimal') {
@@ -1872,12 +1872,14 @@ function buildInvoiceHTML(inv, cust, s) {
         <tbody>${(inv.lines||[]).map(l=>`<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:8px 0">${l.name}${l.description?'<br><span style="color:#888;font-size:12px">'+l.description+'</span>':''}</td><td style="padding:8px 0;text-align:center">${l.qty} ${l.unit}</td><td style="padding:8px 0;text-align:right">${fmtMoney(l.price)}</td><td style="padding:8px 0;text-align:right">${fmtMoney(l.qty*l.price)}</td></tr>`).join('')}</tbody>
       </table>
       <div class="inv-spacer"></div>
-      <div style="margin-left:auto;width:260px;font-size:13px">
-        <div style="display:flex;justify-content:space-between;padding:4px 0;color:#555"><span>Nettobetrag</span><span>${fmtMoney(inv.net)}</span></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;color:#555"><span>MwSt. (${inv.vatRate!==undefined?inv.vatRate:0}%)</span><span>${fmtMoney(inv.vat)}</span></div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:15px;border-top:2px solid #111;margin-top:4px"><span>Gesamt</span><span>${fmtMoney(inv.total)}</span></div>
-      </div>
-      ${notesHtml}${s.iban?`<hr style="border:none;border-top:1px solid #e5e7eb;margin-top:30px"/><div style="font-size:11px;color:#888;margin-top:8px">Bank: ${s.iban}</div>`:''}`;
+      <div class="inv-bottom">
+        <div style="margin-left:auto;width:260px;font-size:13px">
+          <div style="display:flex;justify-content:space-between;padding:4px 0;color:#555"><span>Nettobetrag</span><span>${fmtMoney(inv.net)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;color:#555"><span>MwSt. (${inv.vatRate!==undefined?inv.vatRate:0}%)</span><span>${fmtMoney(inv.vat)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:15px;border-top:2px solid #111;margin-top:4px"><span>Gesamt</span><span>${fmtMoney(inv.total)}</span></div>
+        </div>
+        ${notesHtml}${s.iban?`<hr style="border:none;border-top:1px solid #e5e7eb;margin-top:10px"/><div style="font-size:11px;color:#888;margin-top:6px">Bank: ${s.iban}</div>`:''}
+      </div>`;
   }
 
   if (tpl === 'elegant') {
@@ -1906,7 +1908,7 @@ function buildInvoiceHTML(inv, cust, s) {
         <tbody>${rows}</tbody>
       </table>
       <div class="inv-spacer"></div>
-      ${totalsHtml}${notesHtml}${footerHtml}`;
+      <div class="inv-bottom">${totalsHtml}${notesHtml}${footerHtml}</div>`;
   }
 
   // Default: klassisch
@@ -1927,7 +1929,7 @@ function buildInvoiceHTML(inv, cust, s) {
       <tbody>${rows}</tbody>
     </table>
     <div class="inv-spacer"></div>
-    ${totalsHtml}${notesHtml}${footerHtml}`;
+    <div class="inv-bottom">${totalsHtml}${notesHtml}${footerHtml}</div>`;
 }
 
 function printInvoice() {
@@ -1958,16 +1960,30 @@ function printInvoice() {
     .inv-footer{margin-top:40px;border-top:1px solid #e5e7eb;padding-top:16px;font-size:12px;color:#888}
     @media print{
       *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-      @page{margin:15mm;size:A4}
-      body{margin:0;padding:0;display:block}
-      .inv-spacer{display:block;height:22mm;flex:none}
-      .inv-totals{break-inside:avoid;page-break-inside:avoid}
-      .inv-footer{margin-top:10px;break-inside:avoid;page-break-inside:avoid}
+      @page{margin:14mm;size:A4}
+      body{margin:0;padding:0;display:block;font-size:9pt}
+      .inv-header{margin-bottom:5mm}
+      .inv-company h2{font-size:12pt;margin-bottom:1mm}
+      .inv-company p{font-size:7.5pt;line-height:1.5}
+      .inv-meta h1{font-size:16pt;margin-bottom:2mm}
+      .inv-meta p{font-size:7.5pt;line-height:1.6}
+      .inv-customer{padding:2.5mm 3.5mm;margin-bottom:5mm}
+      .inv-customer h3{font-size:6.5pt;margin-bottom:1.5mm}
+      .inv-customer p{font-size:8pt;line-height:1.55}
+      .inv-table th{padding:1.8mm 3mm;font-size:7.5pt}
+      .inv-table td{padding:1.8mm 3mm;font-size:8pt}
+      .inv-table{margin-bottom:0}
+      .inv-spacer{display:block;flex:none;height:8mm}
+      .inv-bottom{break-inside:avoid;page-break-inside:avoid}
+      .inv-totals{margin-top:0}
+      .inv-total-row{font-size:8pt;padding:0.8mm 0}
+      .inv-total-row.grand{font-size:10pt;padding-top:1.5mm;margin-top:1mm}
+      .inv-footer{margin-top:3mm;padding-top:2.5mm;font-size:7.5pt}
     }
   `;
   const win = window.open('', '_blank', 'width=794,height=1050');
   if (!win) { toast('Bitte Pop-ups für diese Seite erlauben und nochmals tippen.', 'error'); return; }
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=794"><title>Rechnung ${currentViewInvoice.number}</title><style>${invCSS}</style></head><body>${body}<script>window.onload=function(){var b=document.body;var maxH=Math.round(267*96/25.4);if(b.scrollHeight>maxH){b.style.zoom=(maxH/b.scrollHeight).toFixed(3);}setTimeout(function(){window.print();},500);};<\/script></body></html>`);
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rechnung ${currentViewInvoice.number}</title><style>${invCSS}</style></head><body>${body}<script>window.onload=function(){setTimeout(function(){window.print();},400);};<\/script></body></html>`);
   win.document.close();
   win.focus();
 }
