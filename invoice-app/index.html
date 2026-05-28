@@ -806,8 +806,8 @@
     <div id="form-login">
       <form onsubmit="doLogin();return false;" autocomplete="on" style="display:flex;flex-direction:column;gap:14px;">
         <div class="form-group">
-          <label>Benutzername</label>
-          <input id="login-user" name="username" placeholder="benutzername" autocomplete="username" />
+          <label>Benutzername oder E-Mail</label>
+          <input id="login-user" name="username" placeholder="benutzername oder name@email.de" autocomplete="username" />
         </div>
         <div class="form-group">
           <label>Passwort</label>
@@ -1098,40 +1098,90 @@ async function doRegister() {
 }
 
 async function fetchUserFromCloud(username) {
-  if (!db) return null;
+  if (!db) return { error: 'no-db' };
   try {
     const doc = await db.collection('__accounts__').doc(username).get();
-    if (doc.exists) return doc.data();
-  } catch(e) {}
-  return null;
+    if (doc.exists) return { data: doc.data() };
+    return { data: null };
+  } catch(e) {
+    console.error('fetchUserFromCloud error:', e);
+    return { error: e.code || e.message || 'unknown' };
+  }
 }
 
 async function doLogin() {
-  const user = document.getElementById('login-user').value.trim().toLowerCase();
+  let user = document.getElementById('login-user').value.trim().toLowerCase();
   const pass = document.getElementById('login-pass').value;
   const err = document.getElementById('login-error');
   err.style.display = 'none';
   if (!user || !pass) { err.textContent = 'Bitte alle Felder ausfüllen.'; err.style.display='block'; return; }
-  let userData = getUserData(user);
+
+  // Allow login with email address directly (works even if Firestore is unreachable)
+  const isEmail = user.includes('@');
+
+  let userData = isEmail ? null : getUserData(user);
+
   // Not found locally → try fetching from Firestore
   if (!userData) {
     err.textContent = 'Suche in Cloud…';
     err.style.color = '#6b7280';
     err.style.display = 'block';
-    userData = await fetchUserFromCloud(user);
-    if (userData) {
-      const users = getUsers();
-      users[user] = userData;
-      setUsers(users);
+    if (!isEmail) {
+      const res = await fetchUserFromCloud(user);
+      if (res.error && res.error !== 'no-db') {
+        err.textContent = 'Cloud-Fehler (' + res.error + '). Firestore-Regeln prüfen.';
+        err.style.color = '#ef4444'; err.style.display = 'block'; return;
+      }
+      if (res.data) {
+        userData = res.data;
+        const users = getUsers();
+        users[user] = userData;
+        setUsers(users);
+      }
     }
     err.style.display = 'none';
     err.style.color = '#ef4444';
   }
-  if (!userData) { err.textContent = 'Benutzername nicht gefunden.'; err.style.display='block'; return; }
+
+  // If we still have no account record but Firebase Auth is available,
+  // let Firebase Auth verify the credentials directly (email or stored email).
+  if (!userData) {
+    if (auth && isEmail) {
+      try {
+        const cred = await auth.signInWithEmailAndPassword(user, pass);
+        // Derive a username from the email local-part to namespace data
+        const uname = (user.split('@')[0] || user).replace(/[^a-z0-9_]/g, '');
+        const ud = { hash: await sha256(pass), email: user };
+        const users = getUsers(); users[uname] = ud; setUsers(users);
+        sessionStorage.setItem('__session__', uname);
+        currentUser = uname;
+        if (db) { try { await db.collection('__accounts__').doc(uname).set(ud); } catch(e) {} }
+        startApp();
+        return;
+      } catch(e) {
+        err.textContent = (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') ? 'Passwort falsch.' : 'Benutzername nicht gefunden.';
+        err.style.display = 'block'; return;
+      }
+    }
+    err.textContent = 'Benutzername nicht gefunden. Tipp: mit E-Mail-Adresse anmelden.';
+    err.style.display = 'block'; return;
+  }
+
   const hash = await sha256(pass);
-  if (userData.hash !== hash) { err.textContent = 'Passwort falsch.'; err.style.display='block'; return; }
-  if (auth && userData.email) {
-    try { await auth.signInWithEmailAndPassword(userData.email, pass); } catch(e) {}
+  if (userData.hash === hash) {
+    // Local/cloud hash matches → also sign into Firebase Auth for sync
+    if (auth && userData.email) { try { await auth.signInWithEmailAndPassword(userData.email, pass); } catch(e) {} }
+  } else if (auth && userData.email) {
+    // Hash mismatch → let Firebase Auth be the source of truth
+    try {
+      await auth.signInWithEmailAndPassword(userData.email, pass);
+      userData.hash = hash; // repair cached hash
+      const users = getUsers(); users[user] = userData; setUsers(users);
+    } catch(e) {
+      err.textContent = 'Passwort falsch.'; err.style.display='block'; return;
+    }
+  } else {
+    err.textContent = 'Passwort falsch.'; err.style.display='block'; return;
   }
   sessionStorage.setItem('__session__', user);
   currentUser = user;
@@ -1199,15 +1249,13 @@ async function startApp() {
   document.getElementById('sidebar-user').textContent = '👤 ' + currentUser;
   initFirebase();
   if (db) {
-    // Sync current account to Firestore so other devices can login
+    // Always (re)write the account to Firestore so other devices can login.
+    // Using merge repairs registries where an earlier write was blocked.
     const userData = getUserData(currentUser);
     if (userData) {
       try {
-        const existing = await db.collection('__accounts__').doc(currentUser).get();
-        if (!existing.exists) {
-          await db.collection('__accounts__').doc(currentUser).set(userData);
-        }
-      } catch(e) {}
+        await db.collection('__accounts__').doc(currentUser).set(userData, { merge: true });
+      } catch(e) { console.error('account sync failed:', e); }
     }
     const pulled = await pullFromCloud();
     if (!pulled) seedDemoData();
