@@ -2830,14 +2830,18 @@ async function _getReceiptFromCloud(id) {
   try {
     const ref = storage.ref(_receiptStoragePath(id));
     const url = await ref.getDownloadURL();
-    const resp = await fetch(url);
-    const blob = await resp.blob();
-    return await new Promise((resolve, reject) => {
+    // Cache the file locally in background (for offline use)
+    fetch(url).then(r => r.blob()).then(blob => {
       const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(reader.error);
+      reader.onload = () => {
+        _receiptDB().then(db => {
+          const tx = db.transaction('files', 'readwrite');
+          tx.objectStore('files').put(reader.result, id);
+        }).catch(() => {});
+      };
       reader.readAsDataURL(blob);
-    });
+    }).catch(() => {});
+    return url; // https:// URL — works directly as img/iframe src
   } catch(e) { return null; }
 }
 async function _deleteReceiptFromCloud(id) {
@@ -2863,15 +2867,7 @@ async function getReceiptFile(id) {
     req.onerror = () => resolve(null);
   })).catch(() => null);
   if (local) return local;
-  const cloud = await _getReceiptFromCloud(id);
-  if (cloud) {
-    // cache locally for offline use
-    _receiptDB().then(db => {
-      const tx = db.transaction('files', 'readwrite');
-      tx.objectStore('files').put(cloud, id);
-    }).catch(() => {});
-  }
-  return cloud;
+  return _getReceiptFromCloud(id); // returns https:// URL or null
 }
 async function deleteReceiptFile(id) {
   await _receiptDB().then(db => new Promise((resolve) => {
@@ -3204,7 +3200,8 @@ async function viewExpensePhoto(id) {
   _currentExpenseFile = data;
   const img = document.getElementById('expense-photo-full');
   const pdf = document.getElementById('expense-photo-pdf');
-  if (data.startsWith('data:application/pdf')) {
+  const isPdf = _expenseIsPdf(e) || data.startsWith('data:application/pdf');
+  if (isPdf) {
     img.src = ''; img.style.display = 'none';
     pdf.src = data; pdf.style.display = 'block';
   } else {
@@ -3216,6 +3213,11 @@ async function viewExpensePhoto(id) {
 
 function openExpenseFileNewTab() {
   if (!_currentExpenseFile) return;
+  // https:// URL from Firebase Storage — open directly
+  if (_currentExpenseFile.startsWith('https://')) {
+    window.open(_currentExpenseFile, '_blank');
+    return;
+  }
   try {
     // data-URL → Blob, damit mobile Browser es zuverlässig nativ öffnen
     const [meta, b64] = _currentExpenseFile.split(',');
@@ -3505,7 +3507,7 @@ initFirebase();
 // else auth-screen stays visible
 
 // ── Versionsanzeige ──
-const APP_VERSION = '2026-05-29.6';
+const APP_VERSION = '2026-05-29.7';
 (function(){ const el = document.getElementById('app-version'); if (el) el.textContent = 'v' + APP_VERSION; })();
 
 // ── Service Worker: immer aktuelle Version, Offline-fähig ──
