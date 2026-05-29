@@ -783,14 +783,17 @@
         <div class="form-group full">
           <label>Foto der Quittung (optional)</label>
           <div id="e-photo-area" onclick="document.getElementById('e-photo-input').click()"
-            style="border:2px dashed var(--border);border-radius:10px;padding:18px;cursor:pointer;text-align:center;background:#fafafa">
+            ondragover="event.preventDefault();this.style.borderColor='var(--primary)';this.style.background='var(--primary-light)'"
+            ondragleave="this.style.borderColor='';this.style.background='#fafafa'"
+            ondrop="event.preventDefault();this.style.borderColor='';this.style.background='#fafafa';_handleExpenseDrop(event)"
+            style="border:2px dashed var(--border);border-radius:10px;padding:18px;cursor:pointer;text-align:center;background:#fafafa;transition:border-color .15s,background .15s">
             <img id="e-photo-preview" src="" alt="" style="max-height:160px;max-width:100%;display:none;margin:0 auto 8px;border-radius:8px;" />
             <div id="e-photo-hint" style="color:var(--text-muted);font-size:13px">
               <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 6px;display:block;opacity:.4"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-              Foto aufnehmen oder hochladen
+              Klicken, Foto aufnehmen oder Datei reinziehen
             </div>
           </div>
-          <input type="file" id="e-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleExpensePhoto(this)" />
+          <input type="file" id="e-photo-input" accept="image/*" style="display:none" onchange="handleExpensePhoto(this)" />
           <button class="btn btn-ghost btn-sm" id="e-photo-remove" style="display:none;margin-top:6px;color:var(--danger)" onclick="removeExpensePhoto()">Foto entfernen</button>
         </div>
       </div>
@@ -2812,15 +2815,20 @@ function deleteExpense(id) {
   });
 }
 
-function handleExpensePhoto(input) {
-  const file = input.files[0];
-  if (!file) return;
+function _loadExpensePhotoFile(file) {
+  if (!file || !file.type.startsWith('image/')) { toast('Bitte eine Bilddatei auswählen.', 'error'); return; }
   const reader = new FileReader();
-  reader.onload = ev => {
-    expensePhotoData = ev.target.result;
-    _setExpensePhotoPreview(expensePhotoData);
-  };
+  reader.onload = ev => { expensePhotoData = ev.target.result; _setExpensePhotoPreview(expensePhotoData); };
   reader.readAsDataURL(file);
+}
+
+function handleExpensePhoto(input) {
+  if (input.files[0]) _loadExpensePhotoFile(input.files[0]);
+}
+
+function _handleExpenseDrop(event) {
+  const file = event.dataTransfer.files[0];
+  _loadExpensePhotoFile(file);
 }
 
 function removeExpensePhoto() {
