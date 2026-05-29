@@ -341,8 +341,8 @@
 
       #belege-submenu {
         position: fixed; bottom: 66px; left: 0; right: 0;
-        display: flex; justify-content: center; gap: 20px;
-        padding: 14px 24px 12px;
+        display: flex; justify-content: center; gap: 12px;
+        padding: 14px 16px 12px;
         background: rgba(250,250,252,.97);
         backdrop-filter: blur(20px) saturate(180%);
         -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -355,7 +355,7 @@
         display: flex; flex-direction: column; align-items: center; gap: 5px;
         color: #007aff; font-size: 12px; font-weight: 600; cursor: pointer;
         background: #f0f8ff; border: none; border-radius: 14px;
-        padding: 12px 22px; min-width: 110px;
+        padding: 12px 8px; min-width: 0; flex: 1; max-width: 130px;
         box-shadow: 0 2px 12px rgba(0,122,255,.18);
         -webkit-tap-highlight-color: transparent; transition: transform .1s;
       }
@@ -420,6 +420,10 @@
     <div class="nav-item" data-page="positions">
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       Arbeitspositionen
+    </div>
+    <div class="nav-item" data-page="finances">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 4H3a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1z"/><path d="M16 12a2 2 0 0 1 4 0v0a2 2 0 0 1-4 0z"/><path d="M2 9h20"/></svg>
+      Finanzen
     </div>
     <div class="nav-section">Einstellungen</div>
     <div class="nav-item" data-page="settings">
@@ -524,6 +528,27 @@
           <span class="card-title">Arbeitspositionen</span>
         </div>
         <div id="positions-table-wrap"></div>
+      </div>
+    </div>
+
+    <!-- FINANCES -->
+    <div class="page" id="page-finances">
+      <div class="stats-grid" id="finances-stats"></div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Ausgaben / Quittungen</span>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <select id="fin-year" onchange="renderFinances()" style="padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></select>
+            <select id="fin-month" onchange="renderFinances()" style="padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;">
+              <option value="">Ganzes Jahr</option>
+              <option value="1">Januar</option><option value="2">Februar</option><option value="3">März</option>
+              <option value="4">April</option><option value="5">Mai</option><option value="6">Juni</option>
+              <option value="7">Juli</option><option value="8">August</option><option value="9">September</option>
+              <option value="10">Oktober</option><option value="11">November</option><option value="12">Dezember</option>
+            </select>
+          </div>
+        </div>
+        <div id="expenses-table-wrap"></div>
       </div>
     </div>
 
@@ -728,6 +753,64 @@
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-position')">Abbrechen</button>
       <button class="btn btn-primary" onclick="savePosition()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Expense Modal -->
+<div class="modal-overlay hidden" id="modal-expense">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="expense-modal-title">Neue Ausgabe</span>
+      <button class="btn btn-ghost btn-icon" onclick="closeModal('modal-expense')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Datum</label><input id="e-date" type="date" /></div>
+        <div class="form-group"><label>Betrag (€)</label><input id="e-amount" type="number" step="0.01" placeholder="0,00" /></div>
+        <div class="form-group full"><label>Kategorie</label>
+          <input id="e-category" list="e-category-list" placeholder="z.B. Material" />
+          <datalist id="e-category-list">
+            <option value="Material"></option><option value="Fahrtkosten / Tanken"></option>
+            <option value="Werkzeug"></option><option value="Versicherung"></option>
+            <option value="Miete"></option><option value="Büro / Verwaltung"></option>
+            <option value="Telefon / Internet"></option><option value="Fahrzeug"></option>
+            <option value="Steuern / Gebühren"></option><option value="Sonstiges"></option>
+          </datalist>
+        </div>
+        <div class="form-group full"><label>Beschreibung / Händler</label><input id="e-merchant" placeholder="z.B. Baumarkt Müller" /></div>
+        <div class="form-group full"><label>Notiz (optional)</label><textarea id="e-note" rows="2" placeholder="Interne Anmerkung…"></textarea></div>
+        <div class="form-group full">
+          <label>Foto der Quittung (optional)</label>
+          <div id="e-photo-area" onclick="document.getElementById('e-photo-input').click()"
+            style="border:2px dashed var(--border);border-radius:10px;padding:18px;cursor:pointer;text-align:center;background:#fafafa">
+            <img id="e-photo-preview" src="" alt="" style="max-height:160px;max-width:100%;display:none;margin:0 auto 8px;border-radius:8px;" />
+            <div id="e-photo-hint" style="color:var(--text-muted);font-size:13px">
+              <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 6px;display:block;opacity:.4"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Foto aufnehmen oder hochladen
+            </div>
+          </div>
+          <input type="file" id="e-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleExpensePhoto(this)" />
+          <button class="btn btn-ghost btn-sm" id="e-photo-remove" style="display:none;margin-top:6px;color:var(--danger)" onclick="removeExpensePhoto()">Foto entfernen</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-expense')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveExpense()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Expense Photo Viewer Modal -->
+<div class="modal-overlay hidden" id="modal-expense-photo">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">Quittung</span>
+      <button class="btn btn-ghost btn-icon" onclick="closeModal('modal-expense-photo')">✕</button>
+    </div>
+    <div class="modal-body" style="text-align:center;">
+      <img id="expense-photo-full" src="" alt="Quittung" style="max-width:100%;height:auto;border-radius:8px;" />
     </div>
   </div>
 </div>
@@ -972,6 +1055,10 @@
     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>
     Angebote
   </button>
+  <button class="bsub-btn" onclick="navigateBelege('finances')">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 4H3a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1z"/><path d="M16 12a2 2 0 0 1 4 0v0a2 2 0 0 1-4 0z"/><path d="M2 9h20"/></svg>
+    Finanzen
+  </button>
 </div>
 <div id="belege-backdrop" style="display:none;position:fixed;inset:0;z-index:198" onclick="closeBelegeMenu()"></div>
 
@@ -1073,6 +1160,7 @@ async function pushAllToCloud() {
   await cloudSet('customers', getCustomers());
   await cloudSet('invoices', getInvoices());
   await cloudSet('quotes', getQuotes());
+  await cloudSet('expenses', getExpenses());
   await cloudSet('positions', getPositions());
   await cloudSet('settings', getSettings());
   toast('Alle Daten in die Cloud synchronisiert.', 'success');
@@ -1080,15 +1168,16 @@ async function pushAllToCloud() {
 
 async function pullFromCloud() {
   if (!db || !currentUser) return false;
-  const [c, i, q, p, s] = await Promise.all([
-    cloudGet('customers'), cloudGet('invoices'), cloudGet('quotes'), cloudGet('positions'), cloudGet('settings')
+  const [c, i, q, e, p, s] = await Promise.all([
+    cloudGet('customers'), cloudGet('invoices'), cloudGet('quotes'), cloudGet('expenses'), cloudGet('positions'), cloudGet('settings')
   ]);
   if (c) setCustomers(c);
   if (i) setInvoices(i);
   if (q) setQuotes(q);
+  if (e) setExpenses(e);
   if (p) setPositions(p);
   if (s) setSettings(s);
-  return !!(c || i || q || p || s);
+  return !!(c || i || q || e || p || s);
 }
 
 // ═══════════════════════════════════════════════════
@@ -1371,15 +1460,18 @@ function getSettings() { return DB.getObj('settings', { company:'', address:'', 
 function setSettings(d) { DB.set('settings', d); }
 function getQuotes() { return DB.get('quotes'); }
 function setQuotes(d) { DB.set('quotes', d); }
+function getExpenses() { return DB.get('expenses'); }
+function setExpenses(d) { DB.set('expenses', d); }
 
 // ═══════════════════════════════════════════════════
 //  NAVIGATION
 // ═══════════════════════════════════════════════════
 
-const pageTitles = { dashboard:'Dashboard', invoices:'Rechnungen', quotes:'Angebote', customers:'Kunden', positions:'Arbeitspositionen', settings:'Meine Daten' };
+const pageTitles = { dashboard:'Dashboard', invoices:'Rechnungen', quotes:'Angebote', finances:'Finanzen', customers:'Kunden', positions:'Arbeitspositionen', settings:'Meine Daten' };
 const topbarButtons = {
   invoices: () => `<button class="btn btn-primary" onclick="openNewInvoice()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neue Rechnung</button>`,
   quotes: () => `<button class="btn btn-primary" onclick="openNewQuote()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neues Angebot</button>`,
+  finances: () => `<button class="btn btn-primary" onclick="openNewExpense()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neue Ausgabe</button>`,
   customers: () => `<button class="btn btn-primary" onclick="openNewCustomer()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neuer Kunde</button>`,
   positions: () => `<button class="btn btn-primary" onclick="openNewPosition()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neue Position</button>`,
 };
@@ -1391,7 +1483,7 @@ function navigate(page) {
   const sidebarItem = document.querySelector(`.nav-item[data-page="${page}"]`);
   if (sidebarItem) sidebarItem.classList.add('active');
   document.querySelectorAll('#mobile-nav .mn-item').forEach(n => n.classList.remove('active'));
-  if (page === 'invoices' || page === 'quotes') {
+  if (page === 'invoices' || page === 'quotes' || page === 'finances') {
     const bBtn = document.getElementById('mn-belege');
     if (bBtn) bBtn.classList.add('active');
   } else {
@@ -1414,6 +1506,7 @@ function renderPage(page) {
   if (page === 'dashboard') renderDashboard();
   if (page === 'invoices') renderInvoices();
   if (page === 'quotes') renderQuotes();
+  if (page === 'finances') renderFinances();
   if (page === 'customers') renderCustomers();
   if (page === 'positions') renderPositions();
   if (page === 'settings') loadSettings();
@@ -2586,6 +2679,174 @@ function saveSettings() {
   if (sel) s.template = sel.dataset.tpl;
   setSettings(s);
   toast('Einstellungen gespeichert.', 'success');
+}
+
+// ═══════════════════════════════════════════════════
+//  FINANCES  (Ausgaben / Quittungen + Gewinn/Verlust)
+// ═══════════════════════════════════════════════════
+
+let editingExpenseId = null;
+let expensePhotoData = null;
+
+function _inPeriod(dateStr, year, month) {
+  if (!dateStr) return false;
+  if (dateStr.slice(0, 4) !== String(year)) return false;
+  if (month && parseInt(dateStr.slice(5, 7), 10) !== parseInt(month, 10)) return false;
+  return true;
+}
+
+function _populateYearFilter() {
+  const sel = document.getElementById('fin-year');
+  if (!sel) return;
+  const years = new Set();
+  getExpenses().forEach(e => { if (e.date) years.add(e.date.slice(0, 4)); });
+  getInvoices().forEach(i => { if (i.date) years.add(i.date.slice(0, 4)); });
+  years.add(String(new Date().getFullYear()));
+  const sorted = [...years].sort((a, b) => b - a);
+  const prev = sel.value;
+  sel.innerHTML = sorted.map(y => `<option value="${y}">${y}</option>`).join('');
+  sel.value = prev && sorted.includes(prev) ? prev : String(new Date().getFullYear());
+}
+
+function renderFinances() {
+  _populateYearFilter();
+  const year = document.getElementById('fin-year').value || String(new Date().getFullYear());
+  const month = document.getElementById('fin-month').value || '';
+
+  // Einnahmen = alle Rechnungen im Zeitraum, ohne stornierte
+  const income = getInvoices()
+    .filter(i => i.status !== 'storniert' && _inPeriod(i.date, year, month))
+    .reduce((s, i) => s + (i.total || 0), 0);
+
+  const expenses = getExpenses()
+    .filter(e => _inPeriod(e.date, year, month))
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const expenseTotal = expenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+
+  const profit = income - expenseTotal;
+  const profitColor = profit >= 0 ? 'var(--success)' : 'var(--danger)';
+  const profitLabel = profit >= 0 ? 'Gewinn' : 'Verlust';
+
+  document.getElementById('finances-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Einnahmen</div><div class="stat-value" style="color:var(--success)">${fmtMoney(income)}</div><div class="stat-sub">aus Rechnungen</div></div>
+    <div class="stat-card"><div class="stat-label">Ausgaben</div><div class="stat-value" style="color:var(--danger)">${fmtMoney(expenseTotal)}</div><div class="stat-sub">${expenses.length} Belege</div></div>
+    <div class="stat-card"><div class="stat-label">Saldo (${profitLabel})</div><div class="stat-value" style="color:${profitColor}">${fmtMoney(profit)}</div><div class="stat-sub">Einnahmen − Ausgaben</div></div>`;
+
+  const wrap = document.getElementById('expenses-table-wrap');
+  if (expenses.length === 0) {
+    wrap.innerHTML = emptyState('Keine Ausgaben in diesem Zeitraum.');
+    return;
+  }
+  wrap.innerHTML = `
+    <table class="mobile-card-table"><thead><tr><th>Datum</th><th>Kategorie</th><th>Beschreibung / Händler</th><th>Betrag</th><th>Beleg</th><th></th></tr></thead>
+    <tbody>${expenses.map(e => `
+      <tr>
+        <td data-label="Datum">${fmtDate(e.date)}</td>
+        <td data-label="Kategorie">${e.category ? `<span class="badge badge-default">${esc(e.category)}</span>` : '—'}</td>
+        <td data-label="Beschreibung">${esc(e.merchant) || '—'}${e.note ? `<br><span style="color:var(--text-muted);font-size:12px">${esc(e.note)}</span>` : ''}</td>
+        <td data-label="Betrag"><strong>${fmtMoney(e.amount)}</strong></td>
+        <td data-label="Beleg">${e.photo ? `<button class="btn btn-ghost btn-sm btn-icon" onclick="viewExpensePhoto('${e.id}')" title="Quittung ansehen">📎</button>` : '—'}</td>
+        <td class="no-label"><div class="actions-cell">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="editExpense('${e.id}')">✏️</button>
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="deleteExpense('${e.id}')">🗑️</button>
+        </div></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function openNewExpense() {
+  editingExpenseId = null;
+  expensePhotoData = null;
+  document.getElementById('expense-modal-title').textContent = 'Neue Ausgabe';
+  document.getElementById('e-date').value = new Date().toISOString().slice(0, 10);
+  ['e-amount', 'e-category', 'e-merchant', 'e-note'].forEach(id => document.getElementById(id).value = '');
+  _setExpensePhotoPreview('');
+  openModal('modal-expense');
+}
+
+function editExpense(id) {
+  const e = getExpenses().find(x => x.id === id);
+  if (!e) return;
+  editingExpenseId = id;
+  expensePhotoData = e.photo || null;
+  document.getElementById('expense-modal-title').textContent = 'Ausgabe bearbeiten';
+  document.getElementById('e-date').value = e.date || '';
+  document.getElementById('e-amount').value = e.amount || '';
+  document.getElementById('e-category').value = e.category || '';
+  document.getElementById('e-merchant').value = e.merchant || '';
+  document.getElementById('e-note').value = e.note || '';
+  _setExpensePhotoPreview(e.photo || '');
+  openModal('modal-expense');
+}
+
+function saveExpense() {
+  const amount = parseFloat(document.getElementById('e-amount').value);
+  if (!amount || amount <= 0) { toast('Bitte einen gültigen Betrag eingeben.', 'error'); return; }
+  const e = {
+    id: editingExpenseId || genId(),
+    date: document.getElementById('e-date').value || new Date().toISOString().slice(0, 10),
+    amount: amount,
+    category: document.getElementById('e-category').value.trim(),
+    merchant: document.getElementById('e-merchant').value.trim(),
+    note: document.getElementById('e-note').value.trim(),
+    photo: expensePhotoData || '',
+  };
+  const list = getExpenses();
+  if (editingExpenseId) {
+    const i = list.findIndex(x => x.id === editingExpenseId);
+    if (i >= 0) list[i] = e;
+  } else {
+    list.push(e);
+  }
+  setExpenses(list);
+  closeModal('modal-expense');
+  renderFinances();
+  toast(editingExpenseId ? 'Ausgabe aktualisiert.' : 'Ausgabe gespeichert.', 'success');
+}
+
+function deleteExpense(id) {
+  confirm('Ausgabe wirklich löschen?', () => {
+    setExpenses(getExpenses().filter(e => e.id !== id));
+    renderFinances();
+    toast('Ausgabe gelöscht.');
+  });
+}
+
+function handleExpensePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    expensePhotoData = ev.target.result;
+    _setExpensePhotoPreview(expensePhotoData);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeExpensePhoto() {
+  expensePhotoData = null;
+  _setExpensePhotoPreview('');
+  document.getElementById('e-photo-input').value = '';
+}
+
+function _setExpensePhotoPreview(dataUrl) {
+  const preview = document.getElementById('e-photo-preview');
+  const hint = document.getElementById('e-photo-hint');
+  const removeBtn = document.getElementById('e-photo-remove');
+  if (dataUrl) {
+    preview.src = dataUrl; preview.style.display = 'block';
+    hint.style.display = 'none'; removeBtn.style.display = 'inline-flex';
+  } else {
+    preview.src = ''; preview.style.display = 'none';
+    hint.style.display = 'block'; removeBtn.style.display = 'none';
+  }
+}
+
+function viewExpensePhoto(id) {
+  const e = getExpenses().find(x => x.id === id);
+  if (!e || !e.photo) return;
+  document.getElementById('expense-photo-full').src = e.photo;
+  openModal('modal-expense-photo');
 }
 
 // ═══════════════════════════════════════════════════
