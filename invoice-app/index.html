@@ -1531,8 +1531,14 @@ const DB = {
   key(k) { return currentUser ? `${currentUser}__${k}` : k; },
   get(key) { try { return JSON.parse(localStorage.getItem(this.key(key))) || []; } catch { return []; } },
   set(key, val) {
-    localStorage.setItem(this.key(key), JSON.stringify(val));
+    try {
+      localStorage.setItem(this.key(key), JSON.stringify(val));
+    } catch (e) {
+      console.warn('Speicher-Limit erreicht:', e);
+      return false; // Quota überschritten (z.B. zu großer Beleg)
+    }
     if (db && currentUser) cloudSet(key, val).catch(()=>{});
+    return true;
   },
   getObj(key, def = {}) { try { return JSON.parse(localStorage.getItem(this.key(key))) || def; } catch { return def; } },
 };
@@ -1550,7 +1556,7 @@ function setSettings(d) { DB.set('settings', d); }
 function getQuotes() { return DB.get('quotes'); }
 function setQuotes(d) { DB.set('quotes', d); }
 function getExpenses() { return DB.get('expenses'); }
-function setExpenses(d) { DB.set('expenses', d); }
+function setExpenses(d) { return DB.set('expenses', d); }
 function getAfaAssets() { return DB.get('afaAssets'); }
 function setAfaAssets(d) { DB.set('afaAssets', d); }
 
@@ -2950,7 +2956,10 @@ function saveExpense() {
   } else {
     list.push(e);
   }
-  setExpenses(list);
+  if (!setExpenses(list)) {
+    toast('Speicher voll – der Beleg ist zu groß. Bitte ein kleineres Bild verwenden.', 'error');
+    return;
+  }
   closeModal('modal-expense');
   renderFinances();
   toast(editingExpenseId ? 'Ausgabe aktualisiert.' : 'Ausgabe gespeichert.', 'success');
@@ -2964,13 +2973,43 @@ function deleteExpense(id) {
   });
 }
 
+// Bild verkleinern/komprimieren, damit es in den Speicher passt und nicht riesig wird
+function _compressImage(dataUrl, maxDim = 1500, quality = 0.72) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.naturalWidth, h = img.naturalHeight;
+      if (w > maxDim || h > maxDim) {
+        if (w >= h) { h = Math.round(h * maxDim / w); w = maxDim; }
+        else { w = Math.round(w * maxDim / h); h = maxDim; }
+      }
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      } catch (e) { resolve(dataUrl); }
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
 function _loadExpensePhotoFile(file) {
   if (!file || (!file.type.startsWith('image/') && file.type !== 'application/pdf')) {
     toast('Bitte ein Bild oder eine PDF-Datei auswählen.', 'error'); return;
   }
   const reader = new FileReader();
-  reader.onload = ev => {
-    expensePhotoData = ev.target.result;
+  reader.onload = async ev => {
+    let data = ev.target.result;
+    if (file.type.startsWith('image/')) {
+      data = await _compressImage(data); // Foto verkleinern (Speicher + Anzeige)
+    } else if (file.type === 'application/pdf' && data.length > 1.4 * 1024 * 1024) {
+      toast('Diese PDF ist sehr groß und lässt sich evtl. nicht speichern. Tipp: stattdessen ein Foto aufnehmen.', 'error');
+    }
+    expensePhotoData = data;
     expensePhotoName = file.name || '';
     _setExpensePhotoPreview(expensePhotoData, expensePhotoName);
   };
@@ -3324,7 +3363,7 @@ initFirebase();
 // else auth-screen stays visible
 
 // ── Versionsanzeige ──
-const APP_VERSION = '2026-05-29.3';
+const APP_VERSION = '2026-05-29.4';
 (function(){ const el = document.getElementById('app-version'); if (el) el.textContent = 'v' + APP_VERSION; })();
 
 // ── Service Worker: immer aktuelle Version, Offline-fähig ──
