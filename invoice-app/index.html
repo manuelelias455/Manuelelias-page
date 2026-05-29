@@ -178,6 +178,8 @@
 
     /* ── Mobile ── */
     #mobile-nav { display: none; }
+    /* Belege-Submenü & Backdrop nur auf Mobil — auf Desktop immer ausblenden */
+    #belege-submenu, #belege-backdrop { display: none; }
     @media (max-width: 768px) {
       /* Layout */
       #sidebar { display: none !important; }
@@ -3322,7 +3324,7 @@ initFirebase();
 // else auth-screen stays visible
 
 // ── Versionsanzeige ──
-const APP_VERSION = '2026-05-29.2';
+const APP_VERSION = '2026-05-29.3';
 (function(){ const el = document.getElementById('app-version'); if (el) el.textContent = 'v' + APP_VERSION; })();
 
 // ── Service Worker: immer aktuelle Version, Offline-fähig ──
