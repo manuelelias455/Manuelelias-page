@@ -2172,12 +2172,13 @@ async function _renderInvoicePreview(body, inv, cust, s, type = 'invoice') {
     new Promise(r => { if (img.complete) r(); else { img.onload = img.onerror = r; } })
   ));
   for (const img of wrap.querySelectorAll('img[style*="mix-blend-mode"]')) {
+    if (!img.naturalWidth || !img.naturalHeight) continue;
     try {
       const c = document.createElement('canvas');
-      c.width = img.naturalWidth || img.width;
-      c.height = img.naturalHeight || img.height;
+      c.width = img.naturalWidth;
+      c.height = img.naturalHeight;
       const ctx = c.getContext('2d');
-      ctx.drawImage(img, 0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0);
       const d = ctx.getImageData(0, 0, c.width, c.height);
       const px = d.data;
       for (let i = 0; i < px.length; i += 4) {
@@ -2424,12 +2425,13 @@ async function printInvoice() {
   // html2canvas doesn't support mix-blend-mode — pre-process logos placed on dark backgrounds:
   // remove near-white pixels (background) and invert remaining pixels so the icon shows as white.
   for (const img of wrap.querySelectorAll('img[style*="mix-blend-mode"]')) {
+    if (!img.naturalWidth || !img.naturalHeight) continue;
     try {
       const c = document.createElement('canvas');
-      c.width = img.naturalWidth || img.width;
-      c.height = img.naturalHeight || img.height;
+      c.width = img.naturalWidth;
+      c.height = img.naturalHeight;
       const ctx = c.getContext('2d');
-      ctx.drawImage(img, 0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0);
       const d = ctx.getImageData(0, 0, c.width, c.height);
       const px = d.data;
       for (let i = 0; i < px.length; i += 4) {
@@ -2444,7 +2446,7 @@ async function printInvoice() {
       img.src = c.toDataURL('image/png');
       img.style.filter = '';
       img.style.mixBlendMode = '';
-    } catch(e) { /* CORS or tainted canvas — leave as-is */ }
+    } catch(e) { /* tainted canvas — leave as-is */ }
   }
 
   await new Promise(r => setTimeout(r, 150));
