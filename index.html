@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hausmeisterservice Ploscaru | Landkreis Ansbach</title>
+    <meta name="description" content="Professioneller Hausmeisterservice im Landkreis Ansbach – Malerarbeiten, Trockenbau, Renovierungen, Entrümpelungen und mehr. Alles aus einer Hand – sauber, schnell, zuverlässig.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav class="navbar" id="navbar">
+    <div class="container nav-container">
+        <a href="#home" class="nav-logo">
+            <span class="logo-icon"><i class="fas fa-tools"></i></span>
+            <div class="logo-text">
+                <span class="logo-name">Hausmeisterservice</span>
+                <span class="logo-sub">Ploscaru</span>
+            </div>
+        </a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#home" data-i18n="nav.home">Startseite</a></li>
+            <li><a href="#about" data-i18n="nav.about">Über uns</a></li>
+            <li><a href="#services" data-i18n="nav.services">Leistungen</a></li>
+            <li><a href="#why-us" data-i18n="nav.why">Warum wir</a></li>
+            <li><a href="#contact" data-i18n="nav.contact">Kontakt</a></li>
+        </ul>
+        <div class="nav-actions">
+            <div class="lang-switcher">
+                <button class="lang-btn active" data-lang="de">DE</button>
+                <span class="lang-sep">|</span>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+            <a href="tel:+491713457156" class="nav-phone">
+                <i class="fas fa-phone"></i>
+                <span>+49 171 3457156</span>
+            </a>
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="home">
+    <div class="hero-bg"></div>
+    <div class="container hero-content">
+        <div class="hero-badge">
+            <i class="fas fa-map-marker-alt"></i>
+            <span data-i18n="hero.badge">Landkreis Ansbach</span>
+        </div>
+        <h1 class="hero-title">
+            <span data-i18n="hero.title1">Ihr zuverlässiger</span><br>
+            <span class="gold-text" data-i18n="hero.title2">Hausmeisterservice</span>
+        </h1>
+        <p class="hero-slogan" data-i18n="hero.slogan">Alles aus einer Hand – sauber, schnell, zuverlässig.</p>
+        <p class="hero-sub" data-i18n="hero.sub">Von Malerarbeiten über Renovierungen bis hin zu Entrümpelungen – wir übernehmen für Sie.</p>
+        <div class="hero-btns">
+            <a href="tel:+491713457156" class="btn btn-gold">
+                <i class="fas fa-phone"></i>
+                <span data-i18n="hero.cta1">Jetzt anrufen</span>
+            </a>
+            <a href="#contact" class="btn btn-outline">
+                <i class="fas fa-envelope"></i>
+                <span data-i18n="hero.cta2">Angebot anfragen</span>
+            </a>
+        </div>
+    </div>
+    <a href="#about" class="hero-scroll" aria-label="Scroll down">
+        <i class="fas fa-chevron-down"></i>
+    </a>
+</section>
+
+<!-- ===== STATS BAR ===== -->
+<section class="stats-bar">
+    <div class="container stats-grid">
+        <div class="stat-item">
+            <p class="stat-number"><span class="stat-num" data-target="10">0</span><span class="stat-suffix">+</span></p>
+            <span class="stat-label" data-i18n="stats.years">Jahre Erfahrung</span>
+        </div>
+        <div class="stat-item">
+            <p class="stat-number"><span class="stat-num" data-target="200">0</span><span class="stat-suffix">+</span></p>
+            <span class="stat-label" data-i18n="stats.clients">Zufriedene Kunden</span>
+        </div>
+        <div class="stat-item">
+            <p class="stat-number"><span class="stat-num" data-target="500">0</span><span class="stat-suffix">+</span></p>
+            <span class="stat-label" data-i18n="stats.projects">Abgeschlossene Projekte</span>
+        </div>
+        <div class="stat-item">
+            <p class="stat-number"><span class="stat-num" data-target="5">0</span><span class="stat-suffix"></span></p>
+            <span class="stat-label" data-i18n="stats.services">Leistungsbereiche</span>
+        </div>
+    </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section class="section about" id="about">
+    <div class="container about-grid">
+        <div class="about-visual">
+            <div class="about-img-wrap">
+                <div class="about-img-placeholder">
+                    <i class="fas fa-hard-hat"></i>
+                </div>
+                <div class="about-badge-card">
+                    <i class="fas fa-award gold-text"></i>
+                    <div>
+                        <strong data-i18n="about.badge.title">Qualität garantiert</strong>
+                        <span data-i18n="about.badge.sub">in Lehrberg &amp; Umgebung</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="about-text">
+            <p class="section-eyebrow" data-i18n="about.eyebrow">Über uns</p>
+            <h2 data-i18n="about.title">Ihr lokaler Partner für Haus &amp; Handwerk</h2>
+            <p data-i18n="about.p1">Willkommen bei Hausmeisterservice Ploscaru – Ihrem verlässlichen Partner für alle handwerklichen Aufgaben rund um Ihr Zuhause und Ihre Immobilie im Landkreis Ansbach.</p>
+            <p data-i18n="about.p2">Inhaber Iliuta Marian Ploscaru steht für persönliches Engagement, hohe Qualität und transparente Preise. Egal ob kleine Reparatur oder große Renovierung – wir sind für Sie da.</p>
+            <ul class="about-checks">
+                <li><i class="fas fa-check-circle gold-text"></i><span data-i18n="about.c1">Schnelle Reaktionszeiten</span></li>
+                <li><i class="fas fa-check-circle gold-text"></i><span data-i18n="about.c2">Faire &amp; transparente Preise</span></li>
+                <li><i class="fas fa-check-circle gold-text"></i><span data-i18n="about.c3">Persönliche Betreuung</span></li>
+                <li><i class="fas fa-check-circle gold-text"></i><span data-i18n="about.c4">Qualitätsgarantie</span></li>
+            </ul>
+            <a href="#contact" class="btn btn-gold" data-i18n="about.cta">Kostenlos beraten lassen</a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SERVICES ===== -->
+<section class="section services" id="services">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-eyebrow" data-i18n="services.eyebrow">Leistungen</p>
+            <h2 data-i18n="services.title">Was wir für Sie tun</h2>
+            <p class="section-desc" data-i18n="services.desc">Von kleinen Reparaturen bis zur kompletten Renovierung – bei uns erhalten Sie alles aus einer Hand.</p>
+        </div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-home"></i></div>
+                <h3 data-i18n="srv.hm.title">Hausmeister Komplett</h3>
+                <p data-i18n="srv.hm.desc">Rundum-Betreuung Ihrer Immobilie: Treppenhausreinigung, Außenanlagen, Winterdienst, Wartung und mehr.</p>
+                <a href="#contact" class="service-link"><span data-i18n="srv.link">Anfragen</span> <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-paint-roller"></i></div>
+                <h3 data-i18n="srv.ma.title">Malerarbeiten</h3>
+                <p data-i18n="srv.ma.desc">Innen- und Außenanstriche, Tapezierarbeiten, Lackierungen – sauber ausgeführt mit hochwertigen Materialien.</p>
+                <a href="#contact" class="service-link"><span data-i18n="srv.link">Anfragen</span> <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-layer-group"></i></div>
+                <h3 data-i18n="srv.tb.title">Trockenbau</h3>
+                <p data-i18n="srv.tb.desc">Wände, Decken, Trennwände – professioneller Trockenbau für Privat- und Gewerbekunden im Landkreis Ansbach.</p>
+                <a href="#contact" class="service-link"><span data-i18n="srv.link">Anfragen</span> <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-hammer"></i></div>
+                <h3 data-i18n="srv.rn.title">Renovierungen</h3>
+                <p data-i18n="srv.rn.desc">Komplette Wohnungsrenovierungen, Badsanierungen, Bodenbeläge und vieles mehr – alles aus einer Hand.</p>
+                <a href="#contact" class="service-link"><span data-i18n="srv.link">Anfragen</span> <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-truck-moving"></i></div>
+                <h3 data-i18n="srv.en.title">Entrümpelungen</h3>
+                <p data-i18n="srv.en.desc">Keller, Dachboden, Wohnungen – schnelle und saubere Entrümpelung mit fachgerechter Entsorgung.</p>
+                <a href="#contact" class="service-link"><span data-i18n="srv.link">Anfragen</span> <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card service-card-cta">
+                <div class="service-icon"><i class="fas fa-phone-alt"></i></div>
+                <h3 data-i18n="srv.more.title">Weitere Leistungen?</h3>
+                <p data-i18n="srv.more.desc">Sprechen Sie uns an! Wir finden eine Lösung für Ihr Anliegen.</p>
+                <a href="tel:+491713457156" class="btn btn-gold-sm">
+                    <i class="fas fa-phone"></i>
+                    <span data-i18n="srv.more.cta">Jetzt anrufen</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== WHY US ===== -->
+<section class="section why-us" id="why-us">
+    <div class="container">
+        <div class="section-header light">
+            <p class="section-eyebrow" data-i18n="why.eyebrow">Warum wir</p>
+            <h2 data-i18n="why.title">Ihre Vorteile auf einen Blick</h2>
+        </div>
+        <div class="why-grid">
+            <div class="why-card">
+                <div class="why-icon"><i class="fas fa-clock"></i></div>
+                <h3 data-i18n="why.w1.title">Schnell &amp; pünktlich</h3>
+                <p data-i18n="why.w1.desc">Kurze Reaktionszeiten und zuverlässige Termineinhaltung – Ihre Zeit ist kostbar.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon"><i class="fas fa-shield-alt"></i></div>
+                <h3 data-i18n="why.w2.title">Versichert &amp; seriös</h3>
+                <p data-i18n="why.w2.desc">Vollständig versicherter Betrieb – Sie sind bei uns in sicheren Händen.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon"><i class="fas fa-euro-sign"></i></div>
+                <h3 data-i18n="why.w3.title">Faire Preise</h3>
+                <p data-i18n="why.w3.desc">Transparente Kostenvoranschläge ohne versteckte Gebühren – faire Preise für Top-Qualität.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon"><i class="fas fa-map-marker-alt"></i></div>
+                <h3 data-i18n="why.w4.title">Lokal verwurzelt</h3>
+                <p data-i18n="why.w4.desc">Als lokales Unternehmen kennen wir den Landkreis Ansbach und sind schnell bei Ihnen.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon"><i class="fas fa-star"></i></div>
+                <h3 data-i18n="why.w5.title">Qualitätsgarantie</h3>
+                <p data-i18n="why.w5.desc">Wir stehen hinter unserer Arbeit – Qualität, die Sie sehen und spüren werden.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon"><i class="fas fa-handshake"></i></div>
+                <h3 data-i18n="why.w6.title">Persönlicher Service</h3>
+                <p data-i18n="why.w6.desc">Sie sprechen immer direkt mit dem Inhaber – kein Callcenter, keine langen Wartezeiten.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section class="section contact" id="contact">
+    <div class="container contact-grid">
+        <div class="contact-info">
+            <p class="section-eyebrow" data-i18n="contact.eyebrow">Kontakt</p>
+            <h2 data-i18n="contact.title">Schreiben Sie uns</h2>
+            <p data-i18n="contact.desc">Nutzen Sie das Kontaktformular oder rufen Sie uns direkt an. Wir melden uns schnellstmöglich bei Ihnen.</p>
+            <div class="contact-details">
+                <div class="contact-item">
+                    <div class="contact-icon"><i class="fas fa-phone"></i></div>
+                    <div>
+                        <strong data-i18n="contact.phone">Telefon</strong>
+                        <a href="tel:+491713457156">+49 171 3457156</a>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                    <div>
+                        <strong>E-Mail</strong>
+                        <a href="mailto:iliuta.ploscaru@gmail.com">iliuta.ploscaru@gmail.com</a>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div>
+                        <strong data-i18n="contact.address">Adresse</strong>
+                        <span>Lindenweg 2, 91611 Lehrberg</span>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <strong data-i18n="contact.hours">Erreichbarkeit</strong>
+                        <span data-i18n="contact.hours.val">Mo–Sa: 07:00–19:00 Uhr</span>
+                    </div>
+                </div>
+            </div>
+            <div class="map-wrap">
+                <iframe
+                    src="https://maps.google.com/maps?q=Lindenweg+2,+91611+Lehrberg,+Germany&output=embed&z=14"
+                    width="100%" height="220" style="border:0;" allowfullscreen loading="lazy"
+                    title="Standort Hausmeisterservice Ploscaru">
+                </iframe>
+            </div>
+        </div>
+        <div class="contact-form-wrap">
+            <form class="contact-form" id="contactForm" novalidate>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fname" data-i18n="form.name">Name *</label>
+                        <input type="text" id="fname" name="name" placeholder="Ihr Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fphone" data-i18n="form.phone">Telefon</label>
+                        <input type="tel" id="fphone" name="phone" placeholder="+49 ...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="femail">E-Mail *</label>
+                    <input type="email" id="femail" name="email" placeholder="ihre@email.de" required>
+                </div>
+                <div class="form-group">
+                    <label for="fservice" data-i18n="form.service">Leistung</label>
+                    <select id="fservice" name="service">
+                        <option value="" data-i18n="form.service.ph">Leistung auswählen...</option>
+                        <option value="hausmeister" data-i18n="srv.hm.title">Hausmeister Komplett</option>
+                        <option value="maler" data-i18n="srv.ma.title">Malerarbeiten</option>
+                        <option value="trockenbau" data-i18n="srv.tb.title">Trockenbau</option>
+                        <option value="renovierung" data-i18n="srv.rn.title">Renovierungen</option>
+                        <option value="entruempelung" data-i18n="srv.en.title">Entrümpelungen</option>
+                        <option value="sonstiges" data-i18n="form.other">Sonstiges</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="fmsg" data-i18n="form.message">Nachricht *</label>
+                    <textarea id="fmsg" name="message" rows="5" placeholder="Beschreiben Sie Ihr Anliegen..." required></textarea>
+                </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" id="fprivacy" name="privacy" required>
+                    <label for="fprivacy">
+                        <span data-i18n="form.privacy">Ich habe die </span><a href="#" data-i18n="form.privacy.link">Datenschutzerklärung</a><span data-i18n="form.privacy2"> gelesen und stimme zu.</span>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-gold btn-full">
+                    <i class="fas fa-paper-plane"></i>
+                    <span data-i18n="form.submit">Nachricht senden</span>
+                </button>
+                <div class="form-success" id="formSuccess">
+                    <i class="fas fa-check-circle"></i>
+                    <span data-i18n="form.success">Vielen Dank! Wir melden uns bald bei Ihnen.</span>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+    <div class="container footer-grid">
+        <div class="footer-col footer-col-main">
+            <div class="footer-logo">
+                <span class="logo-icon"><i class="fas fa-tools"></i></span>
+                <div class="logo-text">
+                    <span class="logo-name">Hausmeisterservice</span>
+                    <span class="logo-sub">Ploscaru</span>
+                </div>
+            </div>
+            <p class="footer-desc" data-i18n="footer.desc">Ihr zuverlässiger Partner für Hausmeister, Maler, Trockenbau, Renovierungen und Entrümpelungen im Landkreis Ansbach.</p>
+        </div>
+        <div class="footer-col">
+            <h4 data-i18n="footer.links">Schnelllinks</h4>
+            <ul>
+                <li><a href="#home" data-i18n="nav.home">Startseite</a></li>
+                <li><a href="#about" data-i18n="nav.about">Über uns</a></li>
+                <li><a href="#services" data-i18n="nav.services">Leistungen</a></li>
+                <li><a href="#why-us" data-i18n="nav.why">Warum wir</a></li>
+                <li><a href="#contact" data-i18n="nav.contact">Kontakt</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4 data-i18n="footer.services">Leistungen</h4>
+            <ul>
+                <li><span data-i18n="srv.hm.title">Hausmeister Komplett</span></li>
+                <li><span data-i18n="srv.ma.title">Malerarbeiten</span></li>
+                <li><span data-i18n="srv.tb.title">Trockenbau</span></li>
+                <li><span data-i18n="srv.rn.title">Renovierungen</span></li>
+                <li><span data-i18n="srv.en.title">Entrümpelungen</span></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4 data-i18n="footer.contact">Kontakt</h4>
+            <ul class="footer-contact">
+                <li><i class="fas fa-map-marker-alt"></i><span>Lindenweg 2, 91611 Lehrberg</span></li>
+                <li><i class="fas fa-phone"></i><a href="tel:+491713457156">+49 171 3457156</a></li>
+                <li><i class="fas fa-envelope"></i><a href="mailto:iliuta.ploscaru@gmail.com">iliuta.ploscaru@gmail.com</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="container footer-bottom-inner">
+            <p>&copy; 2025 Hausmeisterservice Ploscaru. <span data-i18n="footer.rights">Alle Rechte vorbehalten.</span></p>
+            <div class="footer-legal">
+                <a href="#" data-i18n="footer.imprint">Impressum</a>
+                <a href="#" data-i18n="footer.privacy.link">Datenschutz</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<a href="https://wa.me/491713457156" class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Chat">
+    <i class="fab fa-whatsapp"></i>
+</a>
+<button class="back-to-top" id="backToTop" aria-label="Zurück nach oben">
+    <i class="fas fa-chevron-up"></i>
+</button>
+
+<script src="script.js"></script>
+</body>
+</html>
