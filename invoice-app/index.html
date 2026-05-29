@@ -2171,6 +2171,26 @@ async function _renderInvoicePreview(body, inv, cust, s, type = 'invoice') {
   await Promise.all([...wrap.querySelectorAll('img')].map(img =>
     new Promise(r => { if (img.complete) r(); else { img.onload = img.onerror = r; } })
   ));
+  for (const img of wrap.querySelectorAll('img[style*="mix-blend-mode"]')) {
+    try {
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth || img.width;
+      c.height = img.naturalHeight || img.height;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      const d = ctx.getImageData(0, 0, c.width, c.height);
+      const px = d.data;
+      for (let i = 0; i < px.length; i += 4) {
+        const r = px[i], g = px[i+1], b = px[i+2];
+        if (r > 200 && g > 200 && b > 200) { px[i+3] = 0; }
+        else { px[i] = 255 - r; px[i+1] = 255 - g; px[i+2] = 255 - b; }
+      }
+      ctx.putImageData(d, 0, 0);
+      img.src = c.toDataURL('image/png');
+      img.style.filter = '';
+      img.style.mixBlendMode = '';
+    } catch(e) {}
+  }
   await new Promise(r => setTimeout(r, 120));
   try {
     const canvas = await html2canvas(wrap, {
@@ -2400,6 +2420,33 @@ async function printInvoice() {
   await Promise.all([...wrap.querySelectorAll('img')].map(img =>
     new Promise(r => { if (img.complete) r(); else { img.onload = img.onerror = r; } })
   ));
+
+  // html2canvas doesn't support mix-blend-mode — pre-process logos placed on dark backgrounds:
+  // remove near-white pixels (background) and invert remaining pixels so the icon shows as white.
+  for (const img of wrap.querySelectorAll('img[style*="mix-blend-mode"]')) {
+    try {
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth || img.width;
+      c.height = img.naturalHeight || img.height;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      const d = ctx.getImageData(0, 0, c.width, c.height);
+      const px = d.data;
+      for (let i = 0; i < px.length; i += 4) {
+        const r = px[i], g = px[i+1], b = px[i+2];
+        if (r > 200 && g > 200 && b > 200) {
+          px[i+3] = 0; // transparent — was white background
+        } else {
+          px[i] = 255 - r; px[i+1] = 255 - g; px[i+2] = 255 - b; // invert dark → light
+        }
+      }
+      ctx.putImageData(d, 0, 0);
+      img.src = c.toDataURL('image/png');
+      img.style.filter = '';
+      img.style.mixBlendMode = '';
+    } catch(e) { /* CORS or tainted canvas — leave as-is */ }
+  }
+
   await new Promise(r => setTimeout(r, 150));
 
   try {
