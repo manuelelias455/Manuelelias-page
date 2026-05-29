@@ -552,6 +552,18 @@
       </div>
     </div>
 
+    <!-- AfA -->
+    <div class="card" style="margin-top:16px;">
+      <div class="card-header">
+        <span class="card-title">AfA – Abschreibungen (Wirtschaftsgüter)</span>
+        <button class="btn btn-primary btn-sm" onclick="openNewAfaAsset()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Neue Anlage
+        </button>
+      </div>
+      <div id="afa-table-wrap"></div>
+    </div>
+
     <!-- SETTINGS -->
     <div class="page" id="page-settings">
       <div class="card" style="max-width:600px;">
@@ -814,6 +826,48 @@
     </div>
     <div class="modal-body" style="text-align:center;">
       <img id="expense-photo-full" src="" alt="Quittung" style="max-width:100%;height:auto;border-radius:8px;" />
+    </div>
+  </div>
+</div>
+
+<!-- AfA Asset Modal -->
+<div class="modal-overlay hidden" id="modal-afa">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="afa-modal-title">Neue Anlage</span>
+      <button class="btn btn-ghost btn-icon" onclick="closeModal('modal-afa')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Bezeichnung</label><input id="afa-name" placeholder="z.B. VW Transporter T6" /></div>
+        <div class="form-group"><label>Kaufdatum</label><input id="afa-date" type="date" oninput="_updateAfaPreview()" /></div>
+        <div class="form-group"><label>Anschaffungskosten (€)</label><input id="afa-cost" type="number" step="0.01" placeholder="0,00" oninput="_updateAfaPreview()" /></div>
+        <div class="form-group full"><label>Kategorie / Nutzungsdauer</label>
+          <select id="afa-preset" onchange="applyAfaPreset(this.value)" style="margin-bottom:8px">
+            <option value="">— Vorlage wählen (setzt Nutzungsdauer) —</option>
+            <option value="6">PKW (6 Jahre)</option>
+            <option value="9">LKW / Transporter (9 Jahre)</option>
+            <option value="10">Anhänger (10 Jahre)</option>
+            <option value="3">Computer / Laptop (3 Jahre)</option>
+            <option value="5">Smartphone / Tablet (5 Jahre)</option>
+            <option value="3">Drucker / Scanner (3 Jahre)</option>
+            <option value="5">Werkzeug / Maschine (5 Jahre)</option>
+            <option value="10">Hochdruckreiniger / Rasenmäher (10 Jahre)</option>
+            <option value="13">Büromöbel (13 Jahre)</option>
+            <option value="custom">Eigener Wert</option>
+          </select>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <input id="afa-life" type="number" min="1" max="50" placeholder="Jahre" style="width:100px;" oninput="_updateAfaPreview()" />
+            <span style="font-size:13px;color:var(--text-muted)">Jahre Nutzungsdauer</span>
+          </div>
+        </div>
+        <div class="form-group full"><label>Notiz (optional)</label><textarea id="afa-note" rows="2" placeholder="z.B. Kennzeichen, Seriennummer…" oninput="_updateAfaPreview()"></textarea></div>
+      </div>
+      <div id="afa-preview-box" style="margin-top:12px;padding:12px 16px;background:#f0fdf4;border-radius:8px;font-size:13px;color:#166534;display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-afa')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveAfaAsset()">Speichern</button>
     </div>
   </div>
 </div>
@@ -1164,6 +1218,7 @@ async function pushAllToCloud() {
   await cloudSet('invoices', getInvoices());
   await cloudSet('quotes', getQuotes());
   await cloudSet('expenses', getExpenses());
+  await cloudSet('afaAssets', getAfaAssets());
   await cloudSet('positions', getPositions());
   await cloudSet('settings', getSettings());
   toast('Alle Daten in die Cloud synchronisiert.', 'success');
@@ -1171,16 +1226,17 @@ async function pushAllToCloud() {
 
 async function pullFromCloud() {
   if (!db || !currentUser) return false;
-  const [c, i, q, e, p, s] = await Promise.all([
-    cloudGet('customers'), cloudGet('invoices'), cloudGet('quotes'), cloudGet('expenses'), cloudGet('positions'), cloudGet('settings')
+  const [c, i, q, e, a, p, s] = await Promise.all([
+    cloudGet('customers'), cloudGet('invoices'), cloudGet('quotes'), cloudGet('expenses'), cloudGet('afaAssets'), cloudGet('positions'), cloudGet('settings')
   ]);
   if (c) setCustomers(c);
   if (i) setInvoices(i);
   if (q) setQuotes(q);
   if (e) setExpenses(e);
+  if (a) setAfaAssets(a);
   if (p) setPositions(p);
   if (s) setSettings(s);
-  return !!(c || i || q || e || p || s);
+  return !!(c || i || q || e || a || p || s);
 }
 
 // ═══════════════════════════════════════════════════
@@ -1465,6 +1521,8 @@ function getQuotes() { return DB.get('quotes'); }
 function setQuotes(d) { DB.set('quotes', d); }
 function getExpenses() { return DB.get('expenses'); }
 function setExpenses(d) { DB.set('expenses', d); }
+function getAfaAssets() { return DB.get('afaAssets'); }
+function setAfaAssets(d) { DB.set('afaAssets', d); }
 
 // ═══════════════════════════════════════════════════
 //  NAVIGATION
@@ -1474,7 +1532,7 @@ const pageTitles = { dashboard:'Dashboard', invoices:'Rechnungen', quotes:'Angeb
 const topbarButtons = {
   invoices: () => `<button class="btn btn-primary" onclick="openNewInvoice()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neue Rechnung</button>`,
   quotes: () => `<button class="btn btn-primary" onclick="openNewQuote()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neues Angebot</button>`,
-  finances: () => `<button class="btn btn-primary" onclick="openNewExpense()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neue Ausgabe</button>`,
+  finances: () => `<div style="display:flex;gap:10px;"><button class="btn btn-secondary" onclick="printEUR()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> EÜR als PDF</button><button class="btn btn-primary" onclick="openNewExpense()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neue Ausgabe</button></div>`,
   customers: () => `<button class="btn btn-primary" onclick="openNewCustomer()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neuer Kunde</button>`,
   positions: () => `<button class="btn btn-primary" onclick="openNewPosition()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Neue Position</button>`,
 };
@@ -2690,6 +2748,30 @@ function saveSettings() {
 
 let editingExpenseId = null;
 let expensePhotoData = null;
+let editingAfaId = null;
+
+// ── AfA helpers ──────────────────────────────────────
+function _afaForYear(asset, year) {
+  const pd = new Date((asset.purchaseDate || asset.date) + 'T00:00:00');
+  const pYear = pd.getFullYear();
+  const pMonth = pd.getMonth() + 1;
+  const life = parseInt(asset.usefulLife) || 1;
+  const annual = asset.cost / life;
+  if (year < pYear) return 0;
+  const firstYearAfa = annual * (13 - pMonth) / 12;
+  if (year === pYear) return Math.round(firstYearAfa * 100) / 100;
+  const yearsSince = year - pYear;
+  const alreadyDepreciated = firstYearAfa + (yearsSince - 1) * annual;
+  if (alreadyDepreciated >= asset.cost) return 0;
+  return Math.round(Math.min(annual, asset.cost - alreadyDepreciated) * 100) / 100;
+}
+
+function _bookValueEnd(asset, year) {
+  let total = 0;
+  const pYear = new Date((asset.purchaseDate || asset.date) + 'T00:00:00').getFullYear();
+  for (let y = pYear; y <= year; y++) total += _afaForYear(asset, y);
+  return Math.max(0, Math.round((asset.cost - total) * 100) / 100);
+}
 
 function _inPeriod(dateStr, year, month) {
   if (!dateStr) return false;
@@ -2713,10 +2795,9 @@ function _populateYearFilter() {
 
 function renderFinances() {
   _populateYearFilter();
-  const year = document.getElementById('fin-year').value || String(new Date().getFullYear());
+  const year = parseInt(document.getElementById('fin-year').value) || new Date().getFullYear();
   const month = document.getElementById('fin-month').value || '';
 
-  // Einnahmen = alle Rechnungen im Zeitraum, ohne stornierte
   const income = getInvoices()
     .filter(i => i.status !== 'storniert' && _inPeriod(i.date, year, month))
     .reduce((s, i) => s + (i.total || 0), 0);
@@ -2726,22 +2807,23 @@ function renderFinances() {
     .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   const expenseTotal = expenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
 
-  const profit = income - expenseTotal;
+  // AfA applies for the whole year (no month split)
+  const afaTotal = getAfaAssets().reduce((s, a) => s + _afaForYear(a, year), 0);
+
+  const totalDeductions = expenseTotal + afaTotal;
+  const profit = income - totalDeductions;
   const profitColor = profit >= 0 ? 'var(--success)' : 'var(--danger)';
   const profitLabel = profit >= 0 ? 'Gewinn' : 'Verlust';
 
   document.getElementById('finances-stats').innerHTML = `
     <div class="stat-card"><div class="stat-label">Einnahmen</div><div class="stat-value" style="color:var(--success)">${fmtMoney(income)}</div><div class="stat-sub">aus Rechnungen</div></div>
-    <div class="stat-card"><div class="stat-label">Ausgaben</div><div class="stat-value" style="color:var(--danger)">${fmtMoney(expenseTotal)}</div><div class="stat-sub">${expenses.length} Belege</div></div>
-    <div class="stat-card"><div class="stat-label">Saldo (${profitLabel})</div><div class="stat-value" style="color:${profitColor}">${fmtMoney(profit)}</div><div class="stat-sub">Einnahmen − Ausgaben</div></div>`;
+    <div class="stat-card"><div class="stat-label">Ausgaben + AfA</div><div class="stat-value" style="color:var(--danger)">${fmtMoney(totalDeductions)}</div><div class="stat-sub">${fmtMoney(expenseTotal)} + ${fmtMoney(afaTotal)} AfA</div></div>
+    <div class="stat-card"><div class="stat-label">Saldo (${profitLabel})</div><div class="stat-value" style="color:${profitColor}">${fmtMoney(profit)}</div><div class="stat-sub">Einnahmen − Ausgaben − AfA</div></div>`;
 
   const wrap = document.getElementById('expenses-table-wrap');
-  if (expenses.length === 0) {
-    wrap.innerHTML = emptyState('Keine Ausgaben in diesem Zeitraum.');
-    return;
-  }
-  wrap.innerHTML = `
-    <table class="mobile-card-table"><thead><tr><th>Datum</th><th>Kategorie</th><th>Beschreibung / Händler</th><th>Betrag</th><th>Beleg</th><th></th></tr></thead>
+  wrap.innerHTML = expenses.length === 0
+    ? emptyState('Keine Ausgaben in diesem Zeitraum.')
+    : `<table class="mobile-card-table"><thead><tr><th>Datum</th><th>Kategorie</th><th>Beschreibung / Händler</th><th>Betrag</th><th>Beleg</th><th></th></tr></thead>
     <tbody>${expenses.map(e => `
       <tr>
         <td data-label="Datum">${fmtDate(e.date)}</td>
@@ -2754,6 +2836,36 @@ function renderFinances() {
           <button class="btn btn-ghost btn-sm btn-icon" onclick="deleteExpense('${e.id}')">🗑️</button>
         </div></td>
       </tr>`).join('')}
+    </tbody></table>`;
+
+  // AfA table
+  const afaWrap = document.getElementById('afa-table-wrap');
+  const assets = getAfaAssets();
+  if (assets.length === 0) {
+    afaWrap.innerHTML = emptyState('Noch keine Wirtschaftsgüter eingetragen.');
+    return;
+  }
+  afaWrap.innerHTML = `<table class="mobile-card-table">
+    <thead><tr><th>Bezeichnung</th><th>Kaufdatum</th><th>Kosten</th><th>Nutzungsdauer</th><th>AfA ${year}</th><th>Restbuchwert</th><th></th></tr></thead>
+    <tbody>${assets.map(a => {
+      const afaY = _afaForYear(a, year);
+      const bv = _bookValueEnd(a, year);
+      const pYear = new Date((a.purchaseDate || a.date) + 'T00:00:00').getFullYear();
+      const endYear = pYear + parseInt(a.usefulLife) - 1;
+      const done = bv <= 0;
+      return `<tr style="${done ? 'opacity:.5' : ''}">
+        <td data-label="Bezeichnung"><strong>${esc(a.name)}</strong>${a.note ? `<br><span style="color:var(--text-muted);font-size:12px">${esc(a.note)}</span>` : ''}</td>
+        <td data-label="Kaufdatum">${fmtDate(a.purchaseDate || a.date)}</td>
+        <td data-label="Kosten">${fmtMoney(a.cost)}</td>
+        <td data-label="Nutzungsdauer">${a.usefulLife} Jahre (bis ${endYear})</td>
+        <td data-label="AfA ${year}"><strong>${done ? '—' : fmtMoney(afaY)}</strong></td>
+        <td data-label="Restbuchwert">${done ? '<span class="badge badge-default">abgeschr.</span>' : fmtMoney(bv)}</td>
+        <td class="no-label"><div class="actions-cell">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="editAfaAsset('${a.id}')">✏️</button>
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="deleteAfaAsset('${a.id}')">🗑️</button>
+        </div></td>
+      </tr>`;
+    }).join('')}
     </tbody></table>`;
 }
 
@@ -2855,6 +2967,192 @@ function viewExpensePhoto(id) {
   if (!e || !e.photo) return;
   document.getElementById('expense-photo-full').src = e.photo;
   openModal('modal-expense-photo');
+}
+
+// ── AfA CRUD ─────────────────────────────────────────
+
+function openNewAfaAsset() {
+  editingAfaId = null;
+  document.getElementById('afa-modal-title').textContent = 'Neue Anlage';
+  document.getElementById('afa-date').value = new Date().toISOString().slice(0, 10);
+  ['afa-name','afa-cost','afa-life','afa-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('afa-preset').value = '';
+  document.getElementById('afa-preview-box').style.display = 'none';
+  openModal('modal-afa');
+}
+
+function editAfaAsset(id) {
+  const a = getAfaAssets().find(x => x.id === id);
+  if (!a) return;
+  editingAfaId = id;
+  document.getElementById('afa-modal-title').textContent = 'Anlage bearbeiten';
+  document.getElementById('afa-name').value = a.name || '';
+  document.getElementById('afa-date').value = a.purchaseDate || '';
+  document.getElementById('afa-cost').value = a.cost || '';
+  document.getElementById('afa-life').value = a.usefulLife || '';
+  document.getElementById('afa-note').value = a.note || '';
+  document.getElementById('afa-preset').value = '';
+  _updateAfaPreview();
+  openModal('modal-afa');
+}
+
+function applyAfaPreset(val) {
+  if (val && val !== 'custom') {
+    document.getElementById('afa-life').value = val;
+    _updateAfaPreview();
+  }
+}
+
+function _updateAfaPreview() {
+  const cost = parseFloat(document.getElementById('afa-cost').value);
+  const life = parseInt(document.getElementById('afa-life').value);
+  const dateVal = document.getElementById('afa-date').value;
+  const box = document.getElementById('afa-preview-box');
+  if (!cost || !life || !dateVal) { box.style.display = 'none'; return; }
+  const annual = cost / life;
+  const pd = new Date(dateVal + 'T00:00:00');
+  const pMonth = pd.getMonth() + 1;
+  const firstYear = Math.round(annual * (13 - pMonth) / 12 * 100) / 100;
+  box.style.display = 'block';
+  box.innerHTML = `Jährliche AfA: <strong>${fmtMoney(annual)}</strong> · Erstes Jahr (${pd.getFullYear()}): <strong>${fmtMoney(firstYear)}</strong> (${13 - pMonth} Monate) · Letztes Abschreibungsjahr: <strong>${pd.getFullYear() + life - 1}</strong>`;
+}
+
+function saveAfaAsset() {
+  const name = document.getElementById('afa-name').value.trim();
+  const cost = parseFloat(document.getElementById('afa-cost').value);
+  const life = parseInt(document.getElementById('afa-life').value);
+  const dateVal = document.getElementById('afa-date').value;
+  if (!name) { toast('Bitte Bezeichnung eingeben.', 'error'); return; }
+  if (!cost || cost <= 0) { toast('Bitte Anschaffungskosten eingeben.', 'error'); return; }
+  if (!life || life < 1) { toast('Bitte Nutzungsdauer eingeben.', 'error'); return; }
+  const a = {
+    id: editingAfaId || genId(),
+    name, cost, usefulLife: life,
+    purchaseDate: dateVal || new Date().toISOString().slice(0, 10),
+    note: document.getElementById('afa-note').value.trim(),
+  };
+  const list = getAfaAssets();
+  if (editingAfaId) { const i = list.findIndex(x => x.id === editingAfaId); if (i >= 0) list[i] = a; }
+  else list.push(a);
+  setAfaAssets(list);
+  closeModal('modal-afa');
+  renderFinances();
+  toast(editingAfaId ? 'Anlage aktualisiert.' : 'Anlage gespeichert.', 'success');
+}
+
+function deleteAfaAsset(id) {
+  confirm('Anlage wirklich löschen?', () => {
+    setAfaAssets(getAfaAssets().filter(a => a.id !== id));
+    renderFinances();
+    toast('Anlage gelöscht.');
+  });
+}
+
+// ── EÜR PDF ──────────────────────────────────────────
+
+async function printEUR() {
+  const year = parseInt(document.getElementById('fin-year')?.value) || new Date().getFullYear();
+  const btn = event?.target?.closest('button');
+  const btnHTML = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'PDF…'; }
+  toast('EÜR wird erstellt…');
+
+  try {
+    await Promise.all([
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+    ]);
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.innerHTML = btnHTML; }
+    toast('Bibliothek nicht geladen.', 'error'); return;
+  }
+
+  const s = getSettings();
+  const income = getInvoices()
+    .filter(i => i.status !== 'storniert' && (i.date||'').startsWith(year))
+    .reduce((sum, i) => sum + (i.total || 0), 0);
+
+  const expenses = getExpenses()
+    .filter(e => (e.date||'').startsWith(year))
+    .sort((a, b) => (a.date||'').localeCompare(b.date||''));
+  const expenseTotal = expenses.reduce((sum, e) => sum + (parseFloat(e.amount)||0), 0);
+
+  // Group expenses by category
+  const byCat = {};
+  expenses.forEach(e => {
+    const cat = e.category || 'Sonstiges';
+    byCat[cat] = (byCat[cat] || 0) + (parseFloat(e.amount) || 0);
+  });
+
+  const afaRows = getAfaAssets().map(a => ({ ...a, afaYear: _afaForYear(a, year) })).filter(a => a.afaYear > 0);
+  const afaTotal = afaRows.reduce((s, a) => s + a.afaYear, 0);
+  const totalDeductions = expenseTotal + afaTotal;
+  const profit = income - totalDeductions;
+  const profitBg = profit >= 0 ? '#dcfce7' : '#fee2e2';
+  const profitText = profit >= 0 ? '#166534' : '#991b1b';
+  const profitLabel = profit >= 0 ? 'Gewinn' : 'Verlust';
+
+  const companyLine = [s.company, s.address, `${s.zip||''} ${s.city||''}`.trim(), s.vat ? `USt-IdNr.: ${s.vat}` : ''].filter(Boolean).join(' · ');
+
+  const catRows = Object.entries(byCat).map(([cat, amt]) =>
+    `<tr><td style="padding:6px 16px 6px 28px;font-size:12px;color:#555">• ${cat}</td><td style="padding:6px 16px;text-align:right;font-size:12px;color:#555">${fmtMoney(amt)}</td></tr>`
+  ).join('');
+
+  const afaTableRows = afaRows.map(a =>
+    `<tr><td style="padding:6px 16px 6px 28px;font-size:12px;color:#555">• ${a.name} (${a.usefulLife} J., ab ${(a.purchaseDate||'').slice(0,4)})</td><td style="padding:6px 16px;text-align:right;font-size:12px;color:#555">${fmtMoney(a.afaYear)}</td></tr>`
+  ).join('');
+
+  const html = `
+    <div style="margin-bottom:32px;text-align:center;">
+      <div style="font-size:30px;font-weight:800;letter-spacing:.06em;color:#1e293b">EÜR ${year}</div>
+      <div style="font-size:14px;color:#6b7280;margin-top:4px">Einnahmen-Überschuss-Rechnung · Steuerjahr ${year}</div>
+      ${companyLine ? `<div style="font-size:12px;color:#9ca3af;margin-top:6px">${companyLine}</div>` : ''}
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="background:#1e293b;color:#fff"><td colspan="2" style="padding:10px 16px;font-weight:700;letter-spacing:.06em;font-size:12px">EINNAHMEN</td></tr>
+      <tr style="background:#f0fdf4"><td style="padding:9px 16px;font-weight:600">Betriebseinnahmen (Rechnungen)</td><td style="padding:9px 16px;text-align:right;font-weight:700;color:#166534">${fmtMoney(income)}</td></tr>
+      <tr><td colspan="2" style="padding:16px 0 0"></td></tr>
+      <tr style="background:#1e293b;color:#fff"><td colspan="2" style="padding:10px 16px;font-weight:700;letter-spacing:.06em;font-size:12px">BETRIEBSAUSGABEN</td></tr>
+      ${Object.keys(byCat).length ? `<tr style="background:#fafafa"><td style="padding:8px 16px;font-weight:600;color:#374151">Laufende Ausgaben / Quittungen</td><td style="padding:8px 16px;text-align:right;font-weight:600">${fmtMoney(expenseTotal)}</td></tr>${catRows}` : ''}
+      ${afaRows.length ? `<tr style="background:#fafafa"><td style="padding:8px 16px;font-weight:600;color:#374151">Abschreibungen (AfA)</td><td style="padding:8px 16px;text-align:right;font-weight:600">${fmtMoney(afaTotal)}</td></tr>${afaTableRows}` : ''}
+      <tr style="border-top:2px solid #374151"><td style="padding:10px 16px;font-weight:700">Betriebsausgaben gesamt</td><td style="padding:10px 16px;text-align:right;font-weight:700;color:#991b1b">${fmtMoney(totalDeductions)}</td></tr>
+      <tr><td colspan="2" style="padding:16px 0 0"></td></tr>
+      <tr style="background:${profitBg}"><td style="padding:14px 16px;font-weight:800;font-size:15px;color:${profitText}">${profitLabel} (EÜR ${year})</td><td style="padding:14px 16px;text-align:right;font-weight:800;font-size:16px;color:${profitText}">${fmtMoney(profit)}</td></tr>
+    </table>
+    <div style="margin-top:40px;font-size:11px;color:#9ca3af;text-align:center">Erstellt am ${new Date().toLocaleDateString('de-DE')} · Einnahmen-Überschuss-Rechnung nach § 4 Abs. 3 EStG</div>`;
+
+  const wrap = document.createElement('div');
+  wrap.id = '__eur_wrap__';
+  wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;min-height:1123px;background:#fff;box-sizing:border-box;padding:54px 60px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111;font-size:13px;line-height:1.5';
+  wrap.innerHTML = html;
+  document.body.appendChild(wrap);
+  await new Promise(r => setTimeout(r, 150));
+
+  try {
+    const canvas = await html2canvas(wrap, { scale:2, backgroundColor:'#ffffff', logging:false, width:794, height:Math.max(1123, wrap.scrollHeight) });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'p', unit:'mm', format:'a4' });
+    const W=210, H=297, imgH=(canvas.height/canvas.width)*W;
+    if (imgH <= H+2) {
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',0,0,W,Math.min(imgH,H));
+    } else {
+      const ppx=Math.round((H/W)*canvas.width); let yPx=0;
+      while(yPx<canvas.height){
+        if(yPx>0) pdf.addPage();
+        const sh=Math.min(ppx,canvas.height-yPx),tmp=document.createElement('canvas');
+        tmp.width=canvas.width;tmp.height=sh;
+        tmp.getContext('2d').drawImage(canvas,0,yPx,canvas.width,sh,0,0,canvas.width,sh);
+        pdf.addImage(tmp.toDataURL('image/jpeg',0.95),'JPEG',0,0,W,(sh/canvas.width)*W);
+        yPx+=ppx;
+      }
+    }
+    pdf.save(`EÜR${year}.pdf`);
+    toast('EÜR PDF gespeichert.', 'success');
+  } catch(e) { toast('PDF-Fehler: '+e.message,'error'); }
+  finally {
+    document.body.removeChild(wrap);
+    if (btn) { btn.disabled=false; btn.innerHTML=btnHTML; }
+  }
 }
 
 // ═══════════════════════════════════════════════════
