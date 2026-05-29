@@ -517,12 +517,25 @@ document.getElementById('contactForm').addEventListener('submit', e => {
   const originalHTML = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-  setTimeout(() => {
-    form.reset();
-    btn.disabled = false;
-    btn.innerHTML = originalHTML;
-    const success = document.getElementById('formSuccess');
-    success.classList.add('show');
-    setTimeout(() => success.classList.remove('show'), 5000);
-  }, 1200);
+
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(new FormData(form)).toString()
+  })
+    .then(() => {
+      form.reset();
+      const success = document.getElementById('formSuccess');
+      success.classList.add('show');
+      setTimeout(() => success.classList.remove('show'), 5000);
+    })
+    .catch(() => {
+      alert(currentLang === 'de'
+        ? 'Fehler beim Senden. Bitte rufen Sie uns direkt an.'
+        : 'Error sending message. Please call us directly.');
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+    });
 });

@@ -399,7 +399,9 @@
             </div>
         </div>
         <div class="contact-form-wrap">
-            <form class="contact-form" id="contactForm" novalidate>
+            <form class="contact-form" id="contactForm" name="kontakt" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+                <input type="hidden" name="form-name" value="kontakt">
+                <input type="hidden" name="bot-field" style="display:none">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="fname" data-i18n="form.name">Name *</label>
