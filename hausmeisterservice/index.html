@@ -28,6 +28,7 @@
             <li><a href="#about" data-i18n="nav.about">Über uns</a></li>
             <li><a href="#services" data-i18n="nav.services">Leistungen</a></li>
             <li><a href="#why-us" data-i18n="nav.why">Warum wir</a></li>
+            <li><a href="#gallery" data-i18n="nav.gallery">Referenzen</a></li>
             <li><a href="#contact" data-i18n="nav.contact">Kontakt</a></li>
         </ul>
         <div class="nav-actions">
@@ -230,6 +231,109 @@
     </div>
 </section>
 
+<!-- ===== GALLERY ===== -->
+<section class="section gallery" id="gallery">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-eyebrow" data-i18n="gallery.eyebrow">Referenzen</p>
+            <h2 data-i18n="gallery.title">Unsere Projekte</h2>
+            <p class="section-desc" data-i18n="gallery.desc">Echte Ergebnisse aus abgeschlossenen Projekten – Qualität, die Sie sehen können.</p>
+        </div>
+        <div class="gallery-filters">
+            <button class="filter-btn active" data-filter="all" data-i18n="gallery.f.all">Alle</button>
+            <button class="filter-btn" data-filter="bad" data-i18n="gallery.f.bad">Badsanierung</button>
+            <button class="filter-btn" data-filter="reno" data-i18n="gallery.f.reno">Renovierung</button>
+            <button class="filter-btn" data-filter="fassade" data-i18n="gallery.f.fassade">Fassade</button>
+        </div>
+        <div class="gallery-grid" id="galleryGrid">
+
+            <div class="gallery-item fade-in" data-cat="bad">
+                <img src="images/ref-01.jpg" alt="Badsanierung" loading="lazy" onerror="this.style.display='none'">
+                <div class="gallery-overlay">
+                    <i class="fas fa-expand-alt gallery-zoom"></i>
+                    <span data-i18n="gallery.l1">Badsanierung modern</span>
+                </div>
+            </div>
+
+            <div class="gallery-item fade-in fade-in-delay-1" data-cat="bad">
+                <img src="images/ref-02.jpg" alt="Badsanierung" loading="lazy" onerror="this.style.display='none'">
+                <div class="gallery-overlay">
+                    <i class="fas fa-expand-alt gallery-zoom"></i>
+                    <span data-i18n="gallery.l2">Badsanierung klassisch</span>
+                </div>
+            </div>
+
+            <div class="gallery-item fade-in fade-in-delay-2" data-cat="reno">
+                <img src="images/ref-03.jpg" alt="Küchenmontage" loading="lazy" onerror="this.style.display='none'">
+                <div class="gallery-overlay">
+                    <i class="fas fa-expand-alt gallery-zoom"></i>
+                    <span data-i18n="gallery.l3">Küche &amp; Renovierung</span>
+                </div>
+            </div>
+
+            <div class="gallery-item fade-in fade-in-delay-3" data-cat="fassade">
+                <img src="images/ref-04.jpg" alt="Fassadenarbeiten" loading="lazy" onerror="this.style.display='none'">
+                <div class="gallery-overlay">
+                    <i class="fas fa-expand-alt gallery-zoom"></i>
+                    <span data-i18n="gallery.l4">Fassadenarbeiten</span>
+                </div>
+            </div>
+
+            <div class="gallery-item fade-in fade-in-delay-1" data-cat="bad">
+                <img src="images/ref-05.jpg" alt="Naturstein-Dusche" loading="lazy" onerror="this.style.display='none'">
+                <div class="gallery-overlay">
+                    <i class="fas fa-expand-alt gallery-zoom"></i>
+                    <span data-i18n="gallery.l5">Naturstein-Dusche</span>
+                </div>
+            </div>
+
+            <div class="gallery-item fade-in fade-in-delay-2" data-cat="bad">
+                <img src="images/ref-06.jpg" alt="Fliesenarbeiten" loading="lazy" onerror="this.style.display='none'">
+                <div class="gallery-overlay">
+                    <i class="fas fa-expand-alt gallery-zoom"></i>
+                    <span data-i18n="gallery.l6">Fliesenarbeiten Dusche</span>
+                </div>
+            </div>
+
+            <div class="gallery-item fade-in" data-cat="reno">
+                <img src="images/ref-07.jpg" alt="Bodenbeläge" loading="lazy" onerror="this.style.display='none'">
+                <div class="gallery-overlay">
+                    <i class="fas fa-expand-alt gallery-zoom"></i>
+                    <span data-i18n="gallery.l7">Bodenbeläge &amp; Renovierung</span>
+                </div>
+            </div>
+
+            <div class="gallery-item fade-in fade-in-delay-1" data-cat="bad">
+                <img src="images/ref-08.jpg" alt="Badsanierung komplett" loading="lazy" onerror="this.style.display='none'">
+                <div class="gallery-overlay">
+                    <i class="fas fa-expand-alt gallery-zoom"></i>
+                    <span data-i18n="gallery.l8">Badsanierung Komplett</span>
+                </div>
+            </div>
+
+            <div class="gallery-item fade-in fade-in-delay-2" data-cat="bad">
+                <img src="images/ref-09.jpg" alt="Badsanierung modern" loading="lazy" onerror="this.style.display='none'">
+                <div class="gallery-overlay">
+                    <i class="fas fa-expand-alt gallery-zoom"></i>
+                    <span data-i18n="gallery.l9">Badsanierung modern</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="gallery-lightbox" id="galleryLightbox">
+        <button class="lb-close" id="lbClose"><i class="fas fa-times"></i></button>
+        <button class="lb-nav lb-prev" id="lbPrev"><i class="fas fa-chevron-left"></i></button>
+        <button class="lb-nav lb-next" id="lbNext"><i class="fas fa-chevron-right"></i></button>
+        <div class="lb-inner">
+            <img src="" alt="" id="lbImg">
+            <p class="lb-caption" id="lbCaption"></p>
+        </div>
+    </div>
+</section>
+
 <!-- ===== CONTACT ===== -->
 <section class="section contact" id="contact">
     <div class="container contact-grid">
@@ -346,6 +450,7 @@
                 <li><a href="#about" data-i18n="nav.about">Über uns</a></li>
                 <li><a href="#services" data-i18n="nav.services">Leistungen</a></li>
                 <li><a href="#why-us" data-i18n="nav.why">Warum wir</a></li>
+                <li><a href="#gallery" data-i18n="nav.gallery">Referenzen</a></li>
                 <li><a href="#contact" data-i18n="nav.contact">Kontakt</a></li>
             </ul>
         </div>

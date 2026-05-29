@@ -1,174 +1,90 @@
 /* ===== TRANSLATIONS ===== */
 const translations = {
   de: {
-    'nav.home': 'Startseite',
-    'nav.about': 'Über uns',
-    'nav.services': 'Leistungen',
-    'nav.why': 'Warum wir',
-    'nav.contact': 'Kontakt',
-    'hero.badge': 'Landkreis Ansbach',
-    'hero.title1': 'Ihr zuverlässiger',
-    'hero.title2': 'Hausmeisterservice',
+    'nav.home': 'Startseite', 'nav.about': 'Über uns', 'nav.services': 'Leistungen', 'nav.why': 'Warum wir', 'nav.contact': 'Kontakt',
+    'hero.badge': 'Landkreis Ansbach', 'hero.title1': 'Ihr zuverlässiger', 'hero.title2': 'Hausmeisterservice',
     'hero.slogan': 'Alles aus einer Hand – sauber, schnell, zuverlässig.',
     'hero.sub': 'Von Malerarbeiten über Renovierungen bis hin zu Entrümpelungen – wir übernehmen für Sie.',
-    'hero.cta1': 'Jetzt anrufen',
-    'hero.cta2': 'Angebot anfragen',
-    'stats.years': 'Jahre Erfahrung',
-    'stats.clients': 'Zufriedene Kunden',
-    'stats.projects': 'Abgeschlossene Projekte',
-    'stats.services': 'Leistungsbereiche',
-    'about.eyebrow': 'Über uns',
-    'about.title': 'Ihr lokaler Partner für Haus & Handwerk',
+    'hero.cta1': 'Jetzt anrufen', 'hero.cta2': 'Angebot anfragen',
+    'stats.years': 'Jahre Erfahrung', 'stats.clients': 'Zufriedene Kunden', 'stats.projects': 'Abgeschlossene Projekte', 'stats.services': 'Leistungsbereiche',
+    'about.eyebrow': 'Über uns', 'about.title': 'Ihr lokaler Partner für Haus & Handwerk',
     'about.p1': 'Willkommen bei Hausmeisterservice Ploscaru – Ihrem verlässlichen Partner für alle handwerklichen Aufgaben rund um Ihr Zuhause und Ihre Immobilie im Landkreis Ansbach.',
     'about.p2': 'Inhaber Iliuta Marian Ploscaru steht für persönliches Engagement, hohe Qualität und transparente Preise. Egal ob kleine Reparatur oder große Renovierung – wir sind für Sie da.',
-    'about.c1': 'Schnelle Reaktionszeiten',
-    'about.c2': 'Faire & transparente Preise',
-    'about.c3': 'Persönliche Betreuung',
-    'about.c4': 'Qualitätsgarantie',
-    'about.cta': 'Kostenlos beraten lassen',
-    'about.badge.title': 'Qualität garantiert',
-    'about.badge.sub': 'in Lehrberg & Umgebung',
-    'services.eyebrow': 'Leistungen',
-    'services.title': 'Was wir für Sie tun',
+    'about.c1': 'Schnelle Reaktionszeiten', 'about.c2': 'Faire & transparente Preise', 'about.c3': 'Persönliche Betreuung', 'about.c4': 'Qualitätsgarantie',
+    'about.cta': 'Kostenlos beraten lassen', 'about.badge.title': 'Qualität garantiert', 'about.badge.sub': 'in Lehrberg & Umgebung',
+    'services.eyebrow': 'Leistungen', 'services.title': 'Was wir für Sie tun',
     'services.desc': 'Von kleinen Reparaturen bis zur kompletten Renovierung – bei uns erhalten Sie alles aus einer Hand.',
-    'srv.hm.title': 'Hausmeister Komplett',
-    'srv.hm.desc': 'Rundum-Betreuung Ihrer Immobilie: Treppenhausreinigung, Außenanlagen, Winterdienst, Wartung und mehr.',
-    'srv.ma.title': 'Malerarbeiten',
-    'srv.ma.desc': 'Innen- und Außenanstriche, Tapezierarbeiten, Lackierungen – sauber ausgeführt mit hochwertigen Materialien.',
-    'srv.tb.title': 'Trockenbau',
-    'srv.tb.desc': 'Wände, Decken, Trennwände – professioneller Trockenbau für Privat- und Gewerbekunden im Landkreis Ansbach.',
-    'srv.rn.title': 'Renovierungen',
-    'srv.rn.desc': 'Komplette Wohnungsrenovierungen, Badsanierungen, Bodenbeläge und vieles mehr – alles aus einer Hand.',
-    'srv.en.title': 'Entrümpelungen',
-    'srv.en.desc': 'Keller, Dachboden, Wohnungen – schnelle und saubere Entrümpelung mit fachgerechter Entsorgung.',
-    'srv.link': 'Anfragen',
-    'srv.more.title': 'Weitere Leistungen?',
-    'srv.more.desc': 'Sprechen Sie uns an! Wir finden eine Lösung für Ihr Anliegen.',
-    'srv.more.cta': 'Jetzt anrufen',
-    'why.eyebrow': 'Warum wir',
-    'why.title': 'Ihre Vorteile auf einen Blick',
-    'why.w1.title': 'Schnell & pünktlich',
-    'why.w1.desc': 'Kurze Reaktionszeiten und zuverlässige Termineinhaltung – Ihre Zeit ist kostbar.',
-    'why.w2.title': 'Versichert & seriös',
-    'why.w2.desc': 'Vollständig versicherter Betrieb – Sie sind bei uns in sicheren Händen.',
-    'why.w3.title': 'Faire Preise',
-    'why.w3.desc': 'Transparente Kostenvoranschläge ohne versteckte Gebühren – faire Preise für Top-Qualität.',
-    'why.w4.title': 'Lokal verwurzelt',
-    'why.w4.desc': 'Als lokales Unternehmen kennen wir den Landkreis Ansbach und sind schnell bei Ihnen.',
-    'why.w5.title': 'Qualitätsgarantie',
-    'why.w5.desc': 'Wir stehen hinter unserer Arbeit – Qualität, die Sie sehen und spüren werden.',
-    'why.w6.title': 'Persönlicher Service',
-    'why.w6.desc': 'Sie sprechen immer direkt mit dem Inhaber – kein Callcenter, keine langen Wartezeiten.',
-    'contact.eyebrow': 'Kontakt',
-    'contact.title': 'Schreiben Sie uns',
+    'srv.hm.title': 'Hausmeister Komplett', 'srv.hm.desc': 'Rundum-Betreuung Ihrer Immobilie: Treppenhausreinigung, Außenanlagen, Winterdienst, Wartung und mehr.',
+    'srv.ma.title': 'Malerarbeiten', 'srv.ma.desc': 'Innen- und Außenanstriche, Tapezierarbeiten, Lackierungen – sauber ausgeführt mit hochwertigen Materialien.',
+    'srv.tb.title': 'Trockenbau', 'srv.tb.desc': 'Wände, Decken, Trennwände – professioneller Trockenbau für Privat- und Gewerbekunden im Landkreis Ansbach.',
+    'srv.rn.title': 'Renovierungen', 'srv.rn.desc': 'Komplette Wohnungsrenovierungen, Badsanierungen, Bodenbeläge und vieles mehr – alles aus einer Hand.',
+    'srv.en.title': 'Entrümpelungen', 'srv.en.desc': 'Keller, Dachboden, Wohnungen – schnelle und saubere Entrümpelung mit fachgerechter Entsorgung.',
+    'srv.link': 'Anfragen', 'srv.more.title': 'Weitere Leistungen?', 'srv.more.desc': 'Sprechen Sie uns an! Wir finden eine Lösung für Ihr Anliegen.', 'srv.more.cta': 'Jetzt anrufen',
+    'why.eyebrow': 'Warum wir', 'why.title': 'Ihre Vorteile auf einen Blick',
+    'why.w1.title': 'Schnell & pünktlich', 'why.w1.desc': 'Kurze Reaktionszeiten und zuverlässige Termineinhaltung – Ihre Zeit ist kostbar.',
+    'why.w2.title': 'Versichert & seriös', 'why.w2.desc': 'Vollständig versicherter Betrieb – Sie sind bei uns in sicheren Händen.',
+    'why.w3.title': 'Faire Preise', 'why.w3.desc': 'Transparente Kostenvoranschläge ohne versteckte Gebühren – faire Preise für Top-Qualität.',
+    'why.w4.title': 'Lokal verwurzelt', 'why.w4.desc': 'Als lokales Unternehmen kennen wir den Landkreis Ansbach und sind schnell bei Ihnen.',
+    'why.w5.title': 'Qualitätsgarantie', 'why.w5.desc': 'Wir stehen hinter unserer Arbeit – Qualität, die Sie sehen und spüren werden.',
+    'why.w6.title': 'Persönlicher Service', 'why.w6.desc': 'Sie sprechen immer direkt mit dem Inhaber – kein Callcenter, keine langen Wartezeiten.',
+    'contact.eyebrow': 'Kontakt', 'contact.title': 'Schreiben Sie uns',
     'contact.desc': 'Nutzen Sie das Kontaktformular oder rufen Sie uns direkt an. Wir melden uns schnellstmöglich bei Ihnen.',
-    'contact.phone': 'Telefon',
-    'contact.address': 'Adresse',
-    'contact.hours': 'Erreichbarkeit',
-    'contact.hours.val': 'Mo–Fr: 07:00–19:00 Uhr',
-    'form.name': 'Name *',
-    'form.phone': 'Telefon',
-    'form.service': 'Leistung',
-    'form.service.ph': 'Leistung auswählen...',
-    'form.other': 'Sonstiges',
-    'form.message': 'Nachricht *',
-    'form.privacy': 'Ich habe die ',
-    'form.privacy.link': 'Datenschutzerklärung',
-    'form.privacy2': ' gelesen und stimme zu.',
-    'form.submit': 'Nachricht senden',
-    'form.success': 'Vielen Dank! Wir melden uns bald bei Ihnen.',
+    'contact.phone': 'Telefon', 'contact.address': 'Adresse', 'contact.hours': 'Erreichbarkeit', 'contact.hours.val': 'Mo–Fr: 07:00–19:00 Uhr',
+    'form.name': 'Name *', 'form.phone': 'Telefon', 'form.service': 'Leistung', 'form.service.ph': 'Leistung auswählen...', 'form.other': 'Sonstiges',
+    'form.message': 'Nachricht *', 'form.privacy': 'Ich habe die ', 'form.privacy.link': 'Datenschutzerklärung', 'form.privacy2': ' gelesen und stimme zu.',
+    'form.submit': 'Nachricht senden', 'form.success': 'Vielen Dank! Wir melden uns bald bei Ihnen.',
     'footer.desc': 'Ihr zuverlässiger Partner für Hausmeister, Maler, Trockenbau, Renovierungen und Entrümpelungen im Landkreis Ansbach.',
-    'footer.links': 'Schnelllinks',
-    'footer.services': 'Leistungen',
-    'footer.contact': 'Kontakt',
-    'footer.rights': 'Alle Rechte vorbehalten.',
-    'footer.imprint': 'Impressum',
-    'footer.privacy.link': 'Datenschutz',
+    'footer.links': 'Schnelllinks', 'footer.services': 'Leistungen', 'footer.contact': 'Kontakt',
+    'footer.rights': 'Alle Rechte vorbehalten.', 'footer.imprint': 'Impressum', 'footer.privacy.link': 'Datenschutz',
+    'nav.gallery': 'Referenzen', 'gallery.eyebrow': 'Referenzen', 'gallery.title': 'Unsere Projekte',
+    'gallery.desc': 'Echte Ergebnisse aus abgeschlossenen Projekten – Qualität, die Sie sehen können.',
+    'gallery.f.all': 'Alle', 'gallery.f.bad': 'Badsanierung', 'gallery.f.reno': 'Renovierung', 'gallery.f.fassade': 'Fassade',
+    'gallery.l1': 'Badsanierung modern', 'gallery.l2': 'Badsanierung klassisch', 'gallery.l3': 'Küche & Renovierung',
+    'gallery.l4': 'Fassadenarbeiten', 'gallery.l5': 'Naturstein-Dusche', 'gallery.l6': 'Fliesenarbeiten Dusche',
+    'gallery.l7': 'Bodenbeläge & Renovierung', 'gallery.l8': 'Badsanierung Komplett', 'gallery.l9': 'Badsanierung modern',
   },
   en: {
-    'nav.home': 'Home',
-    'nav.about': 'About Us',
-    'nav.services': 'Services',
-    'nav.why': 'Why Us',
-    'nav.contact': 'Contact',
-    'hero.badge': 'Ansbach District',
-    'hero.title1': 'Your reliable',
-    'hero.title2': 'Property Service',
+    'nav.home': 'Home', 'nav.about': 'About Us', 'nav.services': 'Services', 'nav.why': 'Why Us', 'nav.contact': 'Contact',
+    'hero.badge': 'Ansbach District', 'hero.title1': 'Your reliable', 'hero.title2': 'Property Service',
     'hero.slogan': 'Everything from one source – clean, fast, reliable.',
     'hero.sub': 'From painting to renovations and clearances – we take care of it for you.',
-    'hero.cta1': 'Call now',
-    'hero.cta2': 'Request a quote',
-    'stats.years': 'Years of experience',
-    'stats.clients': 'Satisfied customers',
-    'stats.projects': 'Completed projects',
-    'stats.services': 'Service areas',
-    'about.eyebrow': 'About us',
-    'about.title': 'Your local partner for home & craftsmanship',
+    'hero.cta1': 'Call now', 'hero.cta2': 'Request a quote',
+    'stats.years': 'Years of experience', 'stats.clients': 'Satisfied customers', 'stats.projects': 'Completed projects', 'stats.services': 'Service areas',
+    'about.eyebrow': 'About us', 'about.title': 'Your local partner for home & craftsmanship',
     'about.p1': 'Welcome to Hausmeisterservice Ploscaru – your reliable partner for all handyman tasks around your home and property in the Ansbach district.',
     'about.p2': 'Owner Iliuta Marian Ploscaru stands for personal commitment, high quality, and transparent pricing. Whether small repair or major renovation – we are here for you.',
-    'about.c1': 'Fast response times',
-    'about.c2': 'Fair & transparent prices',
-    'about.c3': 'Personal care',
-    'about.c4': 'Quality guarantee',
-    'about.cta': 'Get free consultation',
-    'about.badge.title': 'Quality guaranteed',
-    'about.badge.sub': 'in Lehrberg & surroundings',
-    'services.eyebrow': 'Services',
-    'services.title': 'What we do for you',
+    'about.c1': 'Fast response times', 'about.c2': 'Fair & transparent prices', 'about.c3': 'Personal care', 'about.c4': 'Quality guarantee',
+    'about.cta': 'Get free consultation', 'about.badge.title': 'Quality guaranteed', 'about.badge.sub': 'in Lehrberg & surroundings',
+    'services.eyebrow': 'Services', 'services.title': 'What we do for you',
     'services.desc': 'From small repairs to complete renovations – get everything from one source.',
-    'srv.hm.title': 'Full Property Service',
-    'srv.hm.desc': 'Complete care for your property: stairwell cleaning, outdoor areas, winter service, maintenance and more.',
-    'srv.ma.title': 'Painting',
-    'srv.ma.desc': 'Interior and exterior painting, wallpapering, varnishing – neatly executed with high-quality materials.',
-    'srv.tb.title': 'Drywall',
-    'srv.tb.desc': 'Walls, ceilings, partition walls – professional drywall for residential and commercial clients in Ansbach.',
-    'srv.rn.title': 'Renovations',
-    'srv.rn.desc': 'Complete apartment renovations, bathroom upgrades, flooring and much more – all from one hand.',
-    'srv.en.title': 'Clearances',
-    'srv.en.desc': 'Basement, attic, apartments – fast and clean clearances with professional disposal.',
-    'srv.link': 'Inquire',
-    'srv.more.title': 'More services?',
-    'srv.more.desc': 'Contact us! We will find a solution for your needs.',
-    'srv.more.cta': 'Call now',
-    'why.eyebrow': 'Why us',
-    'why.title': 'Your benefits at a glance',
-    'why.w1.title': 'Fast & punctual',
-    'why.w1.desc': 'Short response times and reliable punctuality – your time is valuable.',
-    'why.w2.title': 'Insured & professional',
-    'why.w2.desc': 'Fully insured operation – you are in safe hands with us.',
-    'why.w3.title': 'Fair prices',
-    'why.w3.desc': 'Transparent quotes with no hidden fees – fair prices for top quality.',
-    'why.w4.title': 'Locally rooted',
-    'why.w4.desc': 'As a local company, we know the Ansbach district and are quickly with you.',
-    'why.w5.title': 'Quality guarantee',
-    'why.w5.desc': 'We stand behind our work – quality you will see and feel.',
-    'why.w6.title': 'Personal service',
-    'why.w6.desc': 'You always speak directly with the owner – no call centers, no long waits.',
-    'contact.eyebrow': 'Contact',
-    'contact.title': 'Write to us',
+    'srv.hm.title': 'Full Property Service', 'srv.hm.desc': 'Complete care for your property: stairwell cleaning, outdoor areas, winter service, maintenance and more.',
+    'srv.ma.title': 'Painting', 'srv.ma.desc': 'Interior and exterior painting, wallpapering, varnishing – neatly executed with high-quality materials.',
+    'srv.tb.title': 'Drywall', 'srv.tb.desc': 'Walls, ceilings, partition walls – professional drywall for residential and commercial clients in Ansbach.',
+    'srv.rn.title': 'Renovations', 'srv.rn.desc': 'Complete apartment renovations, bathroom upgrades, flooring and much more – all from one hand.',
+    'srv.en.title': 'Clearances', 'srv.en.desc': 'Basement, attic, apartments – fast and clean clearances with professional disposal.',
+    'srv.link': 'Inquire', 'srv.more.title': 'More services?', 'srv.more.desc': 'Contact us! We will find a solution for your needs.', 'srv.more.cta': 'Call now',
+    'why.eyebrow': 'Why us', 'why.title': 'Your benefits at a glance',
+    'why.w1.title': 'Fast & punctual', 'why.w1.desc': 'Short response times and reliable punctuality – your time is valuable.',
+    'why.w2.title': 'Insured & professional', 'why.w2.desc': 'Fully insured operation – you are in safe hands with us.',
+    'why.w3.title': 'Fair prices', 'why.w3.desc': 'Transparent quotes with no hidden fees – fair prices for top quality.',
+    'why.w4.title': 'Locally rooted', 'why.w4.desc': 'As a local company, we know the Ansbach district and are quickly with you.',
+    'why.w5.title': 'Quality guarantee', 'why.w5.desc': 'We stand behind our work – quality you will see and feel.',
+    'why.w6.title': 'Personal service', 'why.w6.desc': 'You always speak directly with the owner – no call centers, no long waits.',
+    'contact.eyebrow': 'Contact', 'contact.title': 'Write to us',
     'contact.desc': 'Use the contact form or call us directly. We will get back to you as soon as possible.',
-    'contact.phone': 'Phone',
-    'contact.address': 'Address',
-    'contact.hours': 'Availability',
-    'contact.hours.val': 'Mon–Fri: 07:00–19:00',
-    'form.name': 'Name *',
-    'form.phone': 'Phone',
-    'form.service': 'Service',
-    'form.service.ph': 'Select service...',
-    'form.other': 'Other',
-    'form.message': 'Message *',
-    'form.privacy': 'I have read the ',
-    'form.privacy.link': 'privacy policy',
-    'form.privacy2': ' and agree.',
-    'form.submit': 'Send message',
-    'form.success': 'Thank you! We will get back to you soon.',
+    'contact.phone': 'Phone', 'contact.address': 'Address', 'contact.hours': 'Availability', 'contact.hours.val': 'Mon–Fri: 07:00–19:00',
+    'form.name': 'Name *', 'form.phone': 'Phone', 'form.service': 'Service', 'form.service.ph': 'Select service...', 'form.other': 'Other',
+    'form.message': 'Message *', 'form.privacy': 'I have read the ', 'form.privacy.link': 'privacy policy', 'form.privacy2': ' and agree.',
+    'form.submit': 'Send message', 'form.success': 'Thank you! We will get back to you soon.',
     'footer.desc': 'Your reliable partner for property management, painting, drywall, renovations and clearances in the Ansbach district.',
-    'footer.links': 'Quick links',
-    'footer.services': 'Services',
-    'footer.contact': 'Contact',
-    'footer.rights': 'All rights reserved.',
-    'footer.imprint': 'Imprint',
-    'footer.privacy.link': 'Privacy',
+    'footer.links': 'Quick links', 'footer.services': 'Services', 'footer.contact': 'Contact',
+    'footer.rights': 'All rights reserved.', 'footer.imprint': 'Imprint', 'footer.privacy.link': 'Privacy',
+    'nav.gallery': 'Portfolio', 'gallery.eyebrow': 'Portfolio', 'gallery.title': 'Our Projects',
+    'gallery.desc': 'Real results from completed projects – quality you can see.',
+    'gallery.f.all': 'All', 'gallery.f.bad': 'Bathroom', 'gallery.f.reno': 'Renovation', 'gallery.f.fassade': 'Façade',
+    'gallery.l1': 'Modern bathroom renovation', 'gallery.l2': 'Classic bathroom renovation', 'gallery.l3': 'Kitchen & renovation',
+    'gallery.l4': 'Façade work', 'gallery.l5': 'Natural stone shower', 'gallery.l6': 'Tile work shower',
+    'gallery.l7': 'Flooring & renovation', 'gallery.l8': 'Complete bathroom renovation', 'gallery.l9': 'Modern bathroom renovation',
   },
   es: {
     'nav.home': 'Inicio', 'nav.about': 'Sobre nosotros', 'nav.services': 'Servicios', 'nav.why': 'Por qué nosotros', 'nav.contact': 'Contacto',
@@ -206,6 +122,12 @@ const translations = {
     'footer.desc': 'Su socio de confianza para administración de fincas, pintura, tabiquería, renovaciones y vaciados en el distrito de Ansbach.',
     'footer.links': 'Enlaces rápidos', 'footer.services': 'Servicios', 'footer.contact': 'Contacto',
     'footer.rights': 'Todos los derechos reservados.', 'footer.imprint': 'Aviso legal', 'footer.privacy.link': 'Privacidad',
+    'nav.gallery': 'Proyectos', 'gallery.eyebrow': 'Proyectos', 'gallery.title': 'Nuestros Proyectos',
+    'gallery.desc': 'Resultados reales de proyectos completados – calidad que puede ver.',
+    'gallery.f.all': 'Todos', 'gallery.f.bad': 'Baño', 'gallery.f.reno': 'Renovación', 'gallery.f.fassade': 'Fachada',
+    'gallery.l1': 'Reforma de baño moderna', 'gallery.l2': 'Reforma de baño clásica', 'gallery.l3': 'Cocina y renovación',
+    'gallery.l4': 'Trabajos de fachada', 'gallery.l5': 'Ducha de piedra natural', 'gallery.l6': 'Alicatado ducha',
+    'gallery.l7': 'Suelos y renovación', 'gallery.l8': 'Reforma de baño completa', 'gallery.l9': 'Reforma de baño moderna',
   },
   ro: {
     'nav.home': 'Acasă', 'nav.about': 'Despre noi', 'nav.services': 'Servicii', 'nav.why': 'De ce noi', 'nav.contact': 'Contact',
@@ -243,6 +165,12 @@ const translations = {
     'footer.desc': 'Partenerul dvs. de încredere pentru administrare imobile, vopsitorie, rigips, renovări și evacuări în județul Ansbach.',
     'footer.links': 'Linkuri rapide', 'footer.services': 'Servicii', 'footer.contact': 'Contact',
     'footer.rights': 'Toate drepturile rezervate.', 'footer.imprint': 'Imprint', 'footer.privacy.link': 'Confidențialitate',
+    'nav.gallery': 'Proiecte', 'gallery.eyebrow': 'Proiecte', 'gallery.title': 'Proiectele Noastre',
+    'gallery.desc': 'Rezultate reale din proiecte finalizate – calitate pe care o puteți vedea.',
+    'gallery.f.all': 'Toate', 'gallery.f.bad': 'Baie', 'gallery.f.reno': 'Renovare', 'gallery.f.fassade': 'Fațadă',
+    'gallery.l1': 'Renovare baie modernă', 'gallery.l2': 'Renovare baie clasică', 'gallery.l3': 'Bucătărie & renovare',
+    'gallery.l4': 'Lucrări fațadă', 'gallery.l5': 'Duș piatră naturală', 'gallery.l6': 'Faianță duș',
+    'gallery.l7': 'Pardoseli & renovare', 'gallery.l8': 'Renovare baie completă', 'gallery.l9': 'Renovare baie modernă',
   }
 };
 
@@ -358,6 +286,72 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       window.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' });
     }
   });
+});
+
+/* ===== GALLERY FILTER ===== */
+const filterBtns = document.querySelectorAll('.filter-btn');
+const galleryItems = document.querySelectorAll('.gallery-item');
+
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    galleryItems.forEach(item => {
+      item.classList.toggle('hidden', filter !== 'all' && item.dataset.cat !== filter);
+    });
+  });
+});
+
+/* ===== GALLERY LIGHTBOX ===== */
+const lightbox = document.getElementById('galleryLightbox');
+const lbImg = document.getElementById('lbImg');
+const lbCaption = document.getElementById('lbCaption');
+const lbClose = document.getElementById('lbClose');
+const lbPrev = document.getElementById('lbPrev');
+const lbNext = document.getElementById('lbNext');
+let lbIndex = 0;
+let lbVisible = [];
+
+function openLb(idx) {
+  lbVisible = [...document.querySelectorAll('.gallery-item:not(.hidden)')];
+  lbIndex = idx;
+  updateLb();
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLb() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function updateLb() {
+  const item = lbVisible[lbIndex];
+  const img = item.querySelector('img');
+  const cap = item.querySelector('.gallery-overlay span');
+  lbImg.src = img.src || '';
+  lbImg.alt = img.alt;
+  lbCaption.textContent = cap ? cap.textContent : '';
+}
+
+galleryItems.forEach(item => {
+  item.addEventListener('click', () => {
+    lbVisible = [...document.querySelectorAll('.gallery-item:not(.hidden)')];
+    const idx = lbVisible.indexOf(item);
+    openLb(idx >= 0 ? idx : 0);
+  });
+});
+
+lbClose.addEventListener('click', closeLb);
+lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLb(); });
+lbPrev.addEventListener('click', e => { e.stopPropagation(); lbIndex = (lbIndex - 1 + lbVisible.length) % lbVisible.length; updateLb(); });
+lbNext.addEventListener('click', e => { e.stopPropagation(); lbIndex = (lbIndex + 1) % lbVisible.length; updateLb(); });
+document.addEventListener('keydown', e => {
+  if (!lightbox.classList.contains('open')) return;
+  if (e.key === 'Escape') closeLb();
+  if (e.key === 'ArrowLeft') { lbIndex = (lbIndex - 1 + lbVisible.length) % lbVisible.length; updateLb(); }
+  if (e.key === 'ArrowRight') { lbIndex = (lbIndex + 1) % lbVisible.length; updateLb(); }
 });
 
 /* ===== CONTACT FORM ===== */
