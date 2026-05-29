@@ -251,36 +251,36 @@ const translations = {
     'nav.home': 'Acasă', 'nav.about': 'Despre noi', 'nav.services': 'Servicii', 'nav.why': 'De ce noi', 'nav.contact': 'Contact',
     'hero.badge': 'Județul Ansbach', 'hero.title1': 'Serviciul dvs. de', 'hero.title2': 'Administrare imobile',
     'hero.slogan': 'Totul dintr-o mână – curat, rapid, de încredere.',
-    'hero.sub': 'De la vopsitorie la renovări şi evacuări – ne ocupăm pentru dvs.',
+    'hero.sub': 'De la vopsitorie la renovări și evacuări – ne ocupăm pentru dvs.',
     'hero.cta1': 'Sunați acum', 'hero.cta2': 'Solicitați ofertă',
     'stats.years': 'Ani de experiență', 'stats.clients': 'Clienți mulțumiți', 'stats.projects': 'Proiecte finalizate', 'stats.services': 'Domenii de servicii',
-    'about.eyebrow': 'Despre noi', 'about.title': 'Partenerul dvs. local pentru casă şi meserii',
-    'about.p1': 'Bun venit la Hausmeisterservice Ploscaru – partenerul dvs. de încredere pentru toate lucrările de întreținere a casei şi imobilului dvs. în județul Ansbach.',
-    'about.p2': 'Proprietarul Iliuta Marian Ploscaru reprezintă angajamentul personal, calitatea înaltă şi prețurile transparente. Fie reparație mică sau renovare mare – suntem aici pentru dvs.',
-    'about.c1': 'Timpi de răspuns rapizi', 'about.c2': 'Prețuri corecte şi transparente', 'about.c3': 'Îngrijire personală', 'about.c4': 'Garanție de calitate',
-    'about.cta': 'Consultație gratuită', 'about.badge.title': 'Calitate garantată', 'about.badge.sub': 'în Lehrberg şi împrejurimi',
+    'about.eyebrow': 'Despre noi', 'about.title': 'Partenerul dvs. local pentru casă și meserii',
+    'about.p1': 'Bun venit la Hausmeisterservice Ploscaru – partenerul dvs. de încredere pentru toate lucrările de întreținere a casei și imobilului dvs. în județul Ansbach.',
+    'about.p2': 'Proprietarul Iliuta Marian Ploscaru reprezintă angajamentul personal, calitatea înaltă și prețurile transparente. Fie reparație mică sau renovare mare – suntem aici pentru dvs.',
+    'about.c1': 'Timpi de răspuns rapizi', 'about.c2': 'Prețuri corecte și transparente', 'about.c3': 'Îngrijire personală', 'about.c4': 'Garanție de calitate',
+    'about.cta': 'Consultație gratuită', 'about.badge.title': 'Calitate garantată', 'about.badge.sub': 'în Lehrberg și împrejurimi',
     'services.eyebrow': 'Servicii', 'services.title': 'Ce facem pentru dvs.',
     'services.desc': 'De la reparații mici la renovări complete – totul dintr-o mână.',
-    'srv.hm.title': 'Serviciu complet imobil', 'srv.hm.desc': 'Îngrijire completă a imobilului: curățenie scări, spații exterioare, serviciu de iarnă, întreținere şi mai mult.',
-    'srv.ma.title': 'Vopsitorie', 'srv.ma.desc': 'Vopsit interior şi exterior, tapetare, lăcuire – executat cu materiale de înaltă calitate.',
-    'srv.tb.title': 'Rigips', 'srv.tb.desc': 'Pereți, tavane, pereți despărțitori – rigips profesional pentru clienți rezidențiali şi comerciali.',
-    'srv.rn.title': 'Renovări', 'srv.rn.desc': 'Renovări complete de apartamente, renovări băi, pardoseli şi multe altele.',
-    'srv.en.title': 'Evacuări', 'srv.en.desc': 'Pivnițe, poduri, apartamente – evacuări rapide şi curate cu eliminare profesională.',
+    'srv.hm.title': 'Serviciu complet imobil', 'srv.hm.desc': 'Îngrijire completă a imobilului: curățenie scări, spații exterioare, serviciu de iarnă, întreținere și mai mult.',
+    'srv.ma.title': 'Vopsitorie', 'srv.ma.desc': 'Vopsit interior și exterior, tapetare, lăcuire – executat cu materiale de înaltă calitate.',
+    'srv.tb.title': 'Rigips', 'srv.tb.desc': 'Pereți, tavane, pereți despărțitori – rigips profesional pentru clienți rezidențiali și comerciali.',
+    'srv.rn.title': 'Renovări', 'srv.rn.desc': 'Renovări complete de apartamente, renovări băi, pardoseli și multe altele.',
+    'srv.en.title': 'Evacuări', 'srv.en.desc': 'Pivnițe, poduri, apartamente – evacuări rapide și curate cu eliminare profesională.',
     'srv.link': 'Solicitați', 'srv.more.title': 'Mai multe servicii?', 'srv.more.desc': 'Contactați-ne! Vom găsi o soluție pentru nevoile dvs.', 'srv.more.cta': 'Sunați acum',
     'why.eyebrow': 'De ce noi', 'why.title': 'Avantajele dvs. dintr-o privire',
-    'why.w1.title': 'Rapid şi punctual', 'why.w1.desc': 'Timpi de răspuns scurți şi punctualitate fiabilă – timpul dvs. este prețios.',
-    'why.w2.title': 'Asigurat şi profesionist', 'why.w2.desc': 'Operațiune complet asigurată – sunteți pe mâini bune cu noi.',
+    'why.w1.title': 'Rapid și punctual', 'why.w1.desc': 'Timpi de răspuns scurți și punctualitate fiabilă – timpul dvs. este prețios.',
+    'why.w2.title': 'Asigurat și profesionist', 'why.w2.desc': 'Operațiune complet asigurată – sunteți pe mâini bune cu noi.',
     'why.w3.title': 'Prețuri corecte', 'why.w3.desc': 'Devize transparente fără taxe ascunse – prețuri corecte pentru calitate superioară.',
-    'why.w4.title': 'Înrădăcinat local', 'why.w4.desc': 'Ca firmă locală, cunoaştem județul Ansbach şi ajungem rapid la dvs.',
-    'why.w5.title': 'Garanție de calitate', 'why.w5.desc': 'Ne susținem munca – calitate pe care o veți vedea şi simți.',
-    'why.w6.title': 'Serviciu personal', 'why.w6.desc': 'Vorbiți întotdeauna direct cu proprietarul – fără centre de apeluri, fără aşteptări lungi.',
+    'why.w4.title': 'Înrădăcinat local', 'why.w4.desc': 'Ca firmă locală, cunoaștem județul Ansbach și ajungem rapid la dvs.',
+    'why.w5.title': 'Garanție de calitate', 'why.w5.desc': 'Ne susținem munca – calitate pe care o veți vedea și simți.',
+    'why.w6.title': 'Serviciu personal', 'why.w6.desc': 'Vorbiți întotdeauna direct cu proprietarul – fără centre de apeluri, fără așteptări lungi.',
     'contact.eyebrow': 'Contact', 'contact.title': 'Scrieți-ne',
     'contact.desc': 'Folosiți formularul de contact sau sunați-ne direct. Vă vom răspunde cât mai curând posibil.',
     'contact.phone': 'Telefon', 'contact.address': 'Adresă', 'contact.hours': 'Disponibilitate', 'contact.hours.val': 'Lun–Vin: 07:00–19:00',
     'form.name': 'Nume *', 'form.phone': 'Telefon', 'form.service': 'Serviciu', 'form.service.ph': 'Selectați serviciul...', 'form.other': 'Altele',
-    'form.message': 'Mesaj *', 'form.privacy': 'Am citit ', 'form.privacy.link': 'politica de confidențialitate', 'form.privacy2': ' şi sunt de acord.',
+    'form.message': 'Mesaj *', 'form.privacy': 'Am citit ', 'form.privacy.link': 'politica de confidențialitate', 'form.privacy2': ' și sunt de acord.',
     'form.submit': 'Trimiteți mesajul', 'form.success': 'Vă mulțumim! Vă vom contacta în curând.',
-    'footer.desc': 'Partenerul dvs. de încredere pentru administrare imobile, vopsitorie, rigips, renovări şi evacuări în județul Ansbach.',
+    'footer.desc': 'Partenerul dvs. de încredere pentru administrare imobile, vopsitorie, rigips, renovări și evacuări în județul Ansbach.',
     'footer.links': 'Linkuri rapide', 'footer.services': 'Servicii', 'footer.contact': 'Contact',
     'footer.rights': 'Toate drepturile rezervate.', 'footer.imprint': 'Imprint', 'footer.privacy.link': 'Confidențialitate',
     'nav.gallery': 'Proiecte', 'gallery.eyebrow': 'Proiecte', 'gallery.title': 'Proiectele Noastre',
@@ -288,7 +288,7 @@ const translations = {
     'gallery.f.all': 'Toate', 'gallery.f.bad': 'Baie', 'gallery.f.reno': 'Renovare', 'gallery.f.fassade': 'Fațadă',
     'gallery.l1': 'Renovare baie', 'gallery.l2': 'Renovare baie', 'gallery.l3': 'Renovare baie',
     'gallery.l4': 'Lucrări fațadă', 'gallery.l5': 'Pardoseli & renovare', 'gallery.l6': 'Renovare baie',
-    'gallery.l7': 'Renovare baie', 'gallery.l8': 'Faianță duş', 'gallery.l9': 'Bucătărie & renovare',
+    'gallery.l7': 'Renovare baie', 'gallery.l8': 'Faianță duș', 'gallery.l9': 'Bucătărie & renovare',
   }
 };
 
@@ -309,6 +309,11 @@ function applyTranslations(lang) {
   if (msgArea) msgArea.placeholder = lang === 'de' ? 'Beschreiben Sie Ihr Anliegen...' : 'Describe your request...';
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+  const cur = document.getElementById('langDropdownCurrent');
+  if (cur) cur.textContent = lang.toUpperCase();
+  document.querySelectorAll('.lang-dropdown-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.lang === lang);
   });
 }
 
@@ -338,6 +343,24 @@ navLinks.querySelectorAll('a').forEach(link => {
 document.querySelectorAll('.lang-btn').forEach(btn => {
   btn.addEventListener('click', () => applyTranslations(btn.dataset.lang));
 });
+
+/* ===== MOBILE LANG DROPDOWN ===== */
+const langDropdownWrap = document.getElementById('langDropdownWrap');
+const langDropdownBtn = document.getElementById('langDropdownBtn');
+if (langDropdownBtn) {
+  langDropdownBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    langDropdownWrap.classList.toggle('open');
+  });
+  document.addEventListener('click', () => langDropdownWrap.classList.remove('open'));
+  document.querySelectorAll('.lang-dropdown-item').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      applyTranslations(item.dataset.lang);
+      langDropdownWrap.classList.remove('open');
+    });
+  });
+}
 
 /* ===== STATS COUNTER ===== */
 function animateCounter(el) {
