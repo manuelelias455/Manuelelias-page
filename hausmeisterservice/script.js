@@ -150,7 +150,7 @@ const translations = {
     'contact.phone': 'Phone',
     'contact.address': 'Address',
     'contact.hours': 'Availability',
-    'contact.hours.val': 'Mon–Sat: 07:00–19:00',
+    'contact.hours.val': 'Mon–Fri: 07:00–19:00',
     'form.name': 'Name *',
     'form.phone': 'Phone',
     'form.service': 'Service',
@@ -169,7 +169,6 @@ const translations = {
     'footer.rights': 'All rights reserved.',
     'footer.imprint': 'Imprint',
     'footer.privacy.link': 'Privacy',
-  }
   },
   es: {
     'nav.home': 'Inicio', 'nav.about': 'Sobre nosotros', 'nav.services': 'Servicios', 'nav.why': 'Por qué nosotros', 'nav.contact': 'Contacto',
