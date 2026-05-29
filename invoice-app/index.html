@@ -2226,7 +2226,7 @@ function buildInvoiceHTML(inv, cust, s, type = 'invoice') {
     return `
       <div style="background:#1e293b;border-radius:8px 8px 0 0;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
         <div style="display:flex;align-items:center;gap:16px;">
-          ${s.logo ? `<img src="${s.logo}" alt="Logo" style="max-height:50px;max-width:120px;object-fit:contain;filter:brightness(0) invert(1);opacity:.9" />` : ''}
+          ${s.logo ? `<img src="${s.logo}" alt="Logo" style="max-height:50px;max-width:120px;object-fit:contain;filter:invert(1);mix-blend-mode:screen;" />` : ''}
           <div>
             <div style="color:#fff;font-weight:700;font-size:16px">${s.company || 'Ihr Unternehmen'}</div>
             <div style="color:#94a3b8;font-size:12px;line-height:1.6">${companyAddr}</div>
