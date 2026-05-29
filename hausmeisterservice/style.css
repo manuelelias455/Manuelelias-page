@@ -283,11 +283,12 @@ input, textarea, select, button { font-family: inherit; }
 .about-img {
     width: 100%;
     aspect-ratio: 4 / 5;
-    object-fit: cover;
-    object-position: center 15%;
+    object-fit: contain;
+    object-position: center center;
     border-radius: var(--radius);
     display: block;
     box-shadow: var(--shadow-lg);
+    background: #f5f5f5;
 }
 .about-badge-card {
     position: absolute;
@@ -704,7 +705,7 @@ input, textarea, select, button { font-family: inherit; }
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1100px) {
     .about-grid { grid-template-columns: 1fr; gap: 48px; }
-    .about-img { aspect-ratio: 3 / 2; object-position: center 20%; }
+    .about-img { aspect-ratio: 3 / 4; object-fit: contain; object-position: center center; }
     .about-badge-card { right: 0; }
     .footer-grid { grid-template-columns: 1fr 1fr; }
     .footer-col-main { grid-column: 1 / -1; }
