@@ -550,18 +550,18 @@
         </div>
         <div id="expenses-table-wrap"></div>
       </div>
-    </div>
 
-    <!-- AfA -->
-    <div class="card" style="margin-top:16px;">
-      <div class="card-header">
-        <span class="card-title">AfA – Abschreibungen (Wirtschaftsgüter)</span>
-        <button class="btn btn-primary btn-sm" onclick="openNewAfaAsset()">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Neue Anlage
-        </button>
+      <!-- AfA -->
+      <div class="card" style="margin-top:16px;">
+        <div class="card-header">
+          <span class="card-title">AfA – Abschreibungen (Wirtschaftsgüter)</span>
+          <button class="btn btn-primary btn-sm" onclick="openNewAfaAsset()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Neue Anlage
+          </button>
+        </div>
+        <div id="afa-table-wrap"></div>
       </div>
-      <div id="afa-table-wrap"></div>
     </div>
 
     <!-- SETTINGS -->
@@ -1568,7 +1568,10 @@ document.querySelectorAll('.nav-item').forEach(el => {
   el.addEventListener('click', () => navigate(el.dataset.page));
 });
 document.querySelectorAll('#mobile-nav .mn-item:not(#mn-belege)').forEach(el => {
-  el.addEventListener('click', () => navigate(el.dataset.page));
+  el.addEventListener('click', () => { closeBelegeMenu(); navigate(el.dataset.page); });
+});
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => closeBelegeMenu());
 });
 
 function renderPage(page) {
