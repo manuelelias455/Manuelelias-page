@@ -2788,6 +2788,49 @@ function saveSettings() {
 let editingExpenseId = null;
 let expensePhotoData = null;
 let expensePhotoName = '';
+let expensePhotoKeep = false; // bestehender Beleg vorhanden (auch wenn nicht neu geladen)
+
+// ── IndexedDB für Beleg-Dateien (PDFs/Fotos zu groß für localStorage) ──
+let _receiptDBPromise = null;
+function _receiptDB() {
+  if (_receiptDBPromise) return _receiptDBPromise;
+  _receiptDBPromise = new Promise((resolve, reject) => {
+    try {
+      const req = indexedDB.open('rv-receipts', 1);
+      req.onupgradeneeded = () => req.result.createObjectStore('files');
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    } catch (e) { reject(e); }
+  });
+  return _receiptDBPromise;
+}
+function saveReceiptFile(id, dataUrl) {
+  return _receiptDB().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction('files', 'readwrite');
+    tx.objectStore('files').put(dataUrl, id);
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
+  }));
+}
+function getReceiptFile(id) {
+  return _receiptDB().then(db => new Promise((resolve) => {
+    const tx = db.transaction('files', 'readonly');
+    const req = tx.objectStore('files').get(id);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => resolve(null);
+  })).catch(() => null);
+}
+function deleteReceiptFile(id) {
+  return _receiptDB().then(db => new Promise((resolve) => {
+    const tx = db.transaction('files', 'readwrite');
+    tx.objectStore('files').delete(id);
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => resolve(false);
+  })).catch(() => false);
+}
+function _expenseHasReceipt(e) { return !!(e && (e.hasReceipt || e.photo)); }
+function _expenseIsPdf(e) { return !!(e && (e.photoType === 'pdf' || (e.photo && e.photo.startsWith('data:application/pdf')))); }
 let editingAfaId = null;
 
 // ── AfA helpers ──────────────────────────────────────
@@ -2870,7 +2913,7 @@ function renderFinances() {
         <td data-label="Kategorie">${e.category ? `<span class="badge badge-default">${esc(e.category)}</span>` : '—'}</td>
         <td data-label="Beschreibung">${esc(e.merchant) || '—'}${e.note ? `<br><span style="color:var(--text-muted);font-size:12px">${esc(e.note)}</span>` : ''}</td>
         <td data-label="Betrag"><strong>${fmtMoney(e.amount)}</strong></td>
-        <td data-label="Beleg">${e.photo ? `<button class="btn btn-ghost btn-sm btn-icon" onclick="viewExpensePhoto('${e.id}')" title="Beleg ansehen">${e.photo.startsWith('data:application/pdf') ? ICONS.doc : ICONS.eye}</button>` : '—'}</td>
+        <td data-label="Beleg">${_expenseHasReceipt(e) ? `<button class="btn btn-ghost btn-sm btn-icon" onclick="viewExpensePhoto('${e.id}')" title="Beleg ansehen">${_expenseIsPdf(e) ? ICONS.doc : ICONS.eye}</button>` : '—'}</td>
         <td class="no-label"><div class="actions-cell">
           <button class="btn btn-ghost btn-sm btn-icon" onclick="editExpense('${e.id}')">${ICONS.edit}</button>
           <button class="btn btn-ghost btn-sm btn-icon" onclick="deleteExpense('${e.id}')">${ICONS.trash}</button>
@@ -2913,6 +2956,7 @@ function openNewExpense() {
   editingExpenseId = null;
   expensePhotoData = null;
   expensePhotoName = '';
+  expensePhotoKeep = false;
   document.getElementById('expense-modal-title').textContent = 'Neue Ausgabe';
   document.getElementById('e-date').value = new Date().toISOString().slice(0, 10);
   ['e-amount', 'e-category', 'e-merchant', 'e-note'].forEach(id => document.getElementById(id).value = '');
@@ -2920,11 +2964,10 @@ function openNewExpense() {
   openModal('modal-expense');
 }
 
-function editExpense(id) {
+async function editExpense(id) {
   const e = getExpenses().find(x => x.id === id);
   if (!e) return;
   editingExpenseId = id;
-  expensePhotoData = e.photo || null;
   expensePhotoName = e.photoName || '';
   document.getElementById('expense-modal-title').textContent = 'Ausgabe bearbeiten';
   document.getElementById('e-date').value = e.date || '';
@@ -2932,32 +2975,70 @@ function editExpense(id) {
   document.getElementById('e-category').value = e.category || '';
   document.getElementById('e-merchant').value = e.merchant || '';
   document.getElementById('e-note').value = e.note || '';
-  _setExpensePhotoPreview(e.photo || '', e.photoName || '');
+  // Beleg laden: zuerst Legacy-Inline, sonst aus IndexedDB
+  let data = e.photo || null;
+  if (!data && e.hasReceipt) data = await getReceiptFile(id);
+  expensePhotoData = data || null;
+  expensePhotoKeep = _expenseHasReceipt(e); // bestehenden Beleg beibehalten
+  if (data) {
+    _setExpensePhotoPreview(data, expensePhotoName);
+  } else if (e.hasReceipt) {
+    // Beleg existiert, ist aber nicht auf diesem Gerät (z.B. nach Cloud-Sync)
+    _setExpensePhotoPreview('');
+    const hint = document.getElementById('e-photo-hint');
+    if (hint) hint.textContent = 'Beleg vorhanden (nicht auf diesem Gerät verfügbar)';
+  } else {
+    _setExpensePhotoPreview('');
+  }
   openModal('modal-expense');
 }
 
-function saveExpense() {
+async function saveExpense() {
   const amount = parseFloat(document.getElementById('e-amount').value);
   if (!amount || amount <= 0) { toast('Bitte einen gültigen Betrag eingeben.', 'error'); return; }
+  const id = editingExpenseId || genId();
+  const prev = editingExpenseId ? getExpenses().find(x => x.id === id) : null;
+
+  // Beleg-Datei in IndexedDB ablegen (statt localStorage — viel mehr Platz)
+  let hasReceipt = false, photoType = '';
+  try {
+    if (expensePhotoData) {
+      await saveReceiptFile(id, expensePhotoData);
+      hasReceipt = true;
+      photoType = expensePhotoData.startsWith('data:application/pdf') ? 'pdf' : 'image';
+    } else if (expensePhotoKeep && prev && prev.hasReceipt) {
+      // Bestehenden Beleg behalten (nicht neu geladen, aber nicht entfernt)
+      hasReceipt = true;
+      photoType = prev.photoType || '';
+    } else {
+      await deleteReceiptFile(id);
+    }
+  } catch (err) {
+    toast('Beleg konnte nicht gespeichert werden. Bitte erneut versuchen.', 'error');
+    return;
+  }
+
   const e = {
-    id: editingExpenseId || genId(),
+    id,
     date: document.getElementById('e-date').value || new Date().toISOString().slice(0, 10),
     amount: amount,
     category: document.getElementById('e-category').value.trim(),
     merchant: document.getElementById('e-merchant').value.trim(),
     note: document.getElementById('e-note').value.trim(),
-    photo: expensePhotoData || '',
     photoName: expensePhotoName || '',
+    photoType: photoType,
+    hasReceipt: hasReceipt,
+    // photo (inline) wird bewusst NICHT mehr gespeichert → localStorage bleibt klein
   };
   const list = getExpenses();
   if (editingExpenseId) {
-    const i = list.findIndex(x => x.id === editingExpenseId);
+    const i = list.findIndex(x => x.id === id);
     if (i >= 0) list[i] = e;
   } else {
     list.push(e);
   }
   if (!setExpenses(list)) {
-    toast('Speicher voll – der Beleg ist zu groß. Bitte ein kleineres Bild verwenden.', 'error');
+    toast('Speicher voll. Bitte alte Belege entfernen.', 'error');
     return;
   }
   closeModal('modal-expense');
@@ -2968,6 +3049,7 @@ function saveExpense() {
 function deleteExpense(id) {
   confirm('Ausgabe wirklich löschen?', () => {
     setExpenses(getExpenses().filter(e => e.id !== id));
+    deleteReceiptFile(id).catch(() => {});
     renderFinances();
     toast('Ausgabe gelöscht.');
   });
@@ -3006,11 +3088,12 @@ function _loadExpensePhotoFile(file) {
     let data = ev.target.result;
     if (file.type.startsWith('image/')) {
       data = await _compressImage(data); // Foto verkleinern (Speicher + Anzeige)
-    } else if (file.type === 'application/pdf' && data.length > 1.4 * 1024 * 1024) {
-      toast('Diese PDF ist sehr groß und lässt sich evtl. nicht speichern. Tipp: stattdessen ein Foto aufnehmen.', 'error');
+    } else if (file.type === 'application/pdf' && data.length > 20 * 1024 * 1024) {
+      toast('Diese PDF ist sehr groß (über 20 MB). Tipp: stattdessen ein Foto aufnehmen.', 'error');
     }
     expensePhotoData = data;
     expensePhotoName = file.name || '';
+    expensePhotoKeep = true;
     _setExpensePhotoPreview(expensePhotoData, expensePhotoName);
   };
   reader.readAsDataURL(file);
@@ -3028,6 +3111,7 @@ function _handleExpenseDrop(event) {
 function removeExpensePhoto() {
   expensePhotoData = null;
   expensePhotoName = '';
+  expensePhotoKeep = false; // Beleg wird beim Speichern entfernt
   _setExpensePhotoPreview('');
   document.getElementById('e-photo-input').value = '';
 }
@@ -3052,22 +3136,27 @@ function _setExpensePhotoPreview(dataUrl, fileName) {
     preview.src = ''; preview.style.display = 'none';
     pdfBox.style.display = 'none';
     hint.style.display = 'block'; removeBtn.style.display = 'none';
+    hint.innerHTML = '<svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 6px;display:block;opacity:.4"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Klicken, Foto aufnehmen oder Datei (Bild/PDF) reinziehen';
   }
 }
 
 let _currentExpenseFile = null;
-function viewExpensePhoto(id) {
+async function viewExpensePhoto(id) {
   const e = getExpenses().find(x => x.id === id);
-  if (!e || !e.photo) return;
-  _currentExpenseFile = e.photo;
+  if (!e) return;
+  // Beleg laden: Legacy-Inline oder aus IndexedDB
+  let data = e.photo || null;
+  if (!data && e.hasReceipt) data = await getReceiptFile(id);
+  if (!data) { toast('Beleg auf diesem Gerät nicht verfügbar.', 'error'); return; }
+  _currentExpenseFile = data;
   const img = document.getElementById('expense-photo-full');
   const pdf = document.getElementById('expense-photo-pdf');
-  if (e.photo.startsWith('data:application/pdf')) {
+  if (data.startsWith('data:application/pdf')) {
     img.src = ''; img.style.display = 'none';
-    pdf.src = e.photo; pdf.style.display = 'block';
+    pdf.src = data; pdf.style.display = 'block';
   } else {
     pdf.src = ''; pdf.style.display = 'none';
-    img.src = e.photo; img.style.display = 'block';
+    img.src = data; img.style.display = 'block';
   }
   openModal('modal-expense-photo');
 }
@@ -3363,7 +3452,7 @@ initFirebase();
 // else auth-screen stays visible
 
 // ── Versionsanzeige ──
-const APP_VERSION = '2026-05-29.4';
+const APP_VERSION = '2026-05-29.5';
 (function(){ const el = document.getElementById('app-version'); if (el) el.textContent = 'v' + APP_VERSION; })();
 
 // ── Service Worker: immer aktuelle Version, Offline-fähig ──
