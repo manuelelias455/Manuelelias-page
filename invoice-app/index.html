@@ -829,8 +829,11 @@
       <button class="btn btn-ghost btn-icon" onclick="closeModal('modal-expense-photo')">✕</button>
     </div>
     <div class="modal-body" style="text-align:center;">
-      <img id="expense-photo-full" src="" alt="Beleg" style="max-width:100%;height:auto;border-radius:8px;display:none;" />
-      <iframe id="expense-photo-pdf" src="" style="width:100%;height:70vh;border:none;border-radius:8px;display:none;"></iframe>
+      <img id="expense-photo-full" src="" alt="Beleg" style="max-width:100%;max-height:70vh;width:auto;height:auto;object-fit:contain;border-radius:8px;display:none;margin:0 auto;" />
+      <iframe id="expense-photo-pdf" src="" style="width:100%;height:65vh;border:none;border-radius:8px;display:none;"></iframe>
+      <div style="margin-top:12px;">
+        <button class="btn btn-secondary btn-sm" onclick="openExpenseFileNewTab()">In neuem Tab öffnen</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2988,9 +2991,11 @@ function _setExpensePhotoPreview(dataUrl, fileName) {
   }
 }
 
+let _currentExpenseFile = null;
 function viewExpensePhoto(id) {
   const e = getExpenses().find(x => x.id === id);
   if (!e || !e.photo) return;
+  _currentExpenseFile = e.photo;
   const img = document.getElementById('expense-photo-full');
   const pdf = document.getElementById('expense-photo-pdf');
   if (e.photo.startsWith('data:application/pdf')) {
@@ -3001,6 +3006,24 @@ function viewExpensePhoto(id) {
     img.src = e.photo; img.style.display = 'block';
   }
   openModal('modal-expense-photo');
+}
+
+function openExpenseFileNewTab() {
+  if (!_currentExpenseFile) return;
+  try {
+    // data-URL → Blob, damit mobile Browser es zuverlässig nativ öffnen
+    const [meta, b64] = _currentExpenseFile.split(',');
+    const mime = (meta.match(/data:([^;]+)/) || [])[1] || 'application/octet-stream';
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const blob = new Blob([bytes], { type: mime });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch (e) {
+    window.open(_currentExpenseFile, '_blank');
+  }
 }
 
 // ── AfA CRUD ─────────────────────────────────────────
