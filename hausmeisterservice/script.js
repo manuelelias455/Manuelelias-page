@@ -65,7 +65,7 @@ const translations = {
     'contact.phone': 'Telefon',
     'contact.address': 'Adresse',
     'contact.hours': 'Erreichbarkeit',
-    'contact.hours.val': 'Mo–Sa: 07:00–19:00 Uhr',
+    'contact.hours.val': 'Mo–Fr: 07:00–19:00 Uhr',
     'form.name': 'Name *',
     'form.phone': 'Telefon',
     'form.service': 'Leistung',
