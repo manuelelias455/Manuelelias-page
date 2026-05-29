@@ -394,6 +394,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 </head>
 <body>
 
@@ -1163,17 +1164,24 @@ let db = null;
 
 let auth = null;
 
+let storage = null;
+
+function _storageBucket(projectId) {
+  return projectId + '.firebasestorage.app';
+}
+
 function initFirebase() {
   const cfg = getFirebaseConfig();
   if (!cfg.apiKey || !cfg.projectId) return;
   try {
     if (!firebase.apps.length) {
-      firebase.initializeApp({ apiKey: cfg.apiKey, projectId: cfg.projectId });
+      firebase.initializeApp({ apiKey: cfg.apiKey, projectId: cfg.projectId, storageBucket: _storageBucket(cfg.projectId) });
     }
     db = firebase.firestore();
     auth = firebase.auth();
+    try { storage = firebase.storage(); } catch(e) { storage = null; }
     updateSyncBadge(true);
-  } catch(e) { db = null; auth = null; }
+  } catch(e) { db = null; auth = null; storage = null; }
 }
 
 function getFirebaseConfig() {
@@ -1192,9 +1200,10 @@ async function saveFirebaseConfig() {
   localStorage.setItem('__fbcfg__', JSON.stringify({ apiKey, projectId }));
   try {
     if (firebase.apps.length) firebase.apps.forEach(a => a.delete());
-    firebase.initializeApp({ apiKey, projectId });
+    firebase.initializeApp({ apiKey, projectId, storageBucket: _storageBucket(projectId) });
     db = firebase.firestore();
     auth = firebase.auth();
+    try { storage = firebase.storage(); } catch(e) { storage = null; }
     await db.collection('_test').doc('ping').set({ t: Date.now() });
     updateSyncBadge(true);
     toast('Cloud-Sync aktiviert! Daten werden jetzt synchronisiert.', 'success');
@@ -2804,30 +2813,74 @@ function _receiptDB() {
   });
   return _receiptDBPromise;
 }
-function saveReceiptFile(id, dataUrl) {
-  return _receiptDB().then(db => new Promise((resolve, reject) => {
+
+// ── Firebase Storage: Belege geräteübergreifend synchronisieren ──
+function _receiptStoragePath(id) {
+  return 'users/' + currentUser + '/receipts/' + id;
+}
+async function _uploadReceiptToCloud(id, dataUrl) {
+  if (!storage || !currentUser) return;
+  try {
+    const ref = storage.ref(_receiptStoragePath(id));
+    await ref.putString(dataUrl, 'data_url');
+  } catch(e) { console.warn('Beleg-Upload fehlgeschlagen:', e); }
+}
+async function _getReceiptFromCloud(id) {
+  if (!storage || !currentUser) return null;
+  try {
+    const ref = storage.ref(_receiptStoragePath(id));
+    const url = await ref.getDownloadURL();
+    const resp = await fetch(url);
+    const blob = await resp.blob();
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
+  } catch(e) { return null; }
+}
+async function _deleteReceiptFromCloud(id) {
+  if (!storage || !currentUser) return;
+  try { await storage.ref(_receiptStoragePath(id)).delete(); } catch(e) {}
+}
+
+async function saveReceiptFile(id, dataUrl) {
+  await _receiptDB().then(db => new Promise((resolve, reject) => {
     const tx = db.transaction('files', 'readwrite');
     tx.objectStore('files').put(dataUrl, id);
     tx.oncomplete = () => resolve(true);
     tx.onerror = () => reject(tx.error);
     tx.onabort = () => reject(tx.error);
   }));
+  _uploadReceiptToCloud(id, dataUrl); // background, no await
 }
-function getReceiptFile(id) {
-  return _receiptDB().then(db => new Promise((resolve) => {
+async function getReceiptFile(id) {
+  const local = await _receiptDB().then(db => new Promise((resolve) => {
     const tx = db.transaction('files', 'readonly');
     const req = tx.objectStore('files').get(id);
     req.onsuccess = () => resolve(req.result || null);
     req.onerror = () => resolve(null);
   })).catch(() => null);
+  if (local) return local;
+  const cloud = await _getReceiptFromCloud(id);
+  if (cloud) {
+    // cache locally for offline use
+    _receiptDB().then(db => {
+      const tx = db.transaction('files', 'readwrite');
+      tx.objectStore('files').put(cloud, id);
+    }).catch(() => {});
+  }
+  return cloud;
 }
-function deleteReceiptFile(id) {
-  return _receiptDB().then(db => new Promise((resolve) => {
+async function deleteReceiptFile(id) {
+  await _receiptDB().then(db => new Promise((resolve) => {
     const tx = db.transaction('files', 'readwrite');
     tx.objectStore('files').delete(id);
     tx.oncomplete = () => resolve(true);
     tx.onerror = () => resolve(false);
   })).catch(() => false);
+  _deleteReceiptFromCloud(id); // background, no await
 }
 function _expenseHasReceipt(e) { return !!(e && (e.hasReceipt || e.photo)); }
 function _expenseIsPdf(e) { return !!(e && (e.photoType === 'pdf' || (e.photo && e.photo.startsWith('data:application/pdf')))); }
@@ -3452,7 +3505,7 @@ initFirebase();
 // else auth-screen stays visible
 
 // ── Versionsanzeige ──
-const APP_VERSION = '2026-05-29.5';
+const APP_VERSION = '2026-05-29.6';
 (function(){ const el = document.getElementById('app-version'); if (el) el.textContent = 'v' + APP_VERSION; })();
 
 // ── Service Worker: immer aktuelle Version, Offline-fähig ──
